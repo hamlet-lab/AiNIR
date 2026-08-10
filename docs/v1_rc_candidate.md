@@ -18,6 +18,7 @@ human_external_review: pending
 
 - Trust Gate decision surface
 - TrustReceipt issue/replay shape
+- offline EvidenceProvider artifact contracts and no-auto-promotion boundary
 - public negative conformance corpus
 - public golden traces
 - public safety registry and operation registry shape
@@ -28,8 +29,8 @@ human_external_review: pending
 ## What is not frozen
 
 - production host runtime integrations
-- enterprise evidence ledger backend
-- external consumer adapters
+- enterprise evidence ledger backend and provider-to-ledger promotion governance
+- networked provider and external consumer adapters
 - organization-level policy registry governance
 - future workflow domains beyond the public demo set
 - v1.0 final release wording

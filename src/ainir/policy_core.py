@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from .core import DraftModule, Finding
 from .execution_context import TrustedExecutionContext
+from .registry_context import DynamicRegistryProxy
 from .safety_registry import compact, get_registry
 from .operation_registry import get_operation_registry
 
 
-REGISTRY = get_registry()
-OP_REGISTRY = get_operation_registry()
+REGISTRY = DynamicRegistryProxy(get_registry)
+OP_REGISTRY = DynamicRegistryProxy(get_operation_registry)
 
 
 def evaluate_policy_core(draft: DraftModule, context: TrustedExecutionContext | None = None) -> list[Finding]:

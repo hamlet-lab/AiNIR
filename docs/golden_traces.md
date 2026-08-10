@@ -18,7 +18,7 @@ Golden traces include both safe and unsafe drafts. Unsafe traces pass only when 
 Run:
 
 ```bash
-PYTHONPATH=src python -m ainir golden-trace-eval --out-dir /tmp/ainir_golden_traces
+PYTHONPATH=src python -m ainir conformance golden --out-dir /tmp/ainir_golden_traces
 ```
 
 Outputs:

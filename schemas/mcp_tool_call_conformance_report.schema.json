@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/mcp_tool_call_conformance_report.schema.json",
+  "title": "AiNIR MCP Tool-Call Conformance Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "profile_id",
+    "profile_sha256",
+    "pack_id",
+    "pack_sha256",
+    "overall_status",
+    "case_count",
+    "passed",
+    "failed",
+    "results",
+    "execution_performed",
+    "trust_gate_override_allowed",
+    "production_runtime_ready",
+    "report_sha256"
+  ],
+  "properties": {
+    "kind": {
+      "const": "AiNIRMCPToolCallConformanceReport"
+    },
+    "version": {
+      "const": "ainir.mcp-tool-call-conformance-report.v1"
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{2,127}$"
+    },
+    "profile_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "pack_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{2,127}$"
+    },
+    "pack_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "overall_status": {
+      "enum": [
+        "passed",
+        "failed"
+      ]
+    },
+    "case_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "passed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "failed": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "case_id",
+          "category",
+          "scenario",
+          "expected_status",
+          "actual_status",
+          "passed",
+          "failed_checks",
+          "required_host_actions",
+          "assessment_id",
+          "assessment_sha256",
+          "notes"
+        ],
+        "properties": {
+          "case_id": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "scenario": {
+            "type": "string"
+          },
+          "expected_status": {
+            "enum": [
+              "passed",
+              "refused",
+              "invalid",
+              "review_required"
+            ]
+          },
+          "actual_status": {
+            "enum": [
+              "passed",
+              "refused",
+              "invalid",
+              "review_required"
+            ]
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "failed_checks": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 0,
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+            }
+          },
+          "required_host_actions": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 0,
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+            }
+          },
+          "assessment_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^ainir\\.mcp\\.assessment\\.[0-9a-f]{20}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assessment_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "execution_performed": {
+      "const": false
+    },
+    "trust_gate_override_allowed": {
+      "const": false
+    },
+    "production_runtime_ready": {
+      "const": false
+    },
+    "report_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "output_dir": {
+      "type": "string"
+    }
+  }
+}

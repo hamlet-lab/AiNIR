@@ -1,0 +1,295 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/mcp_host_context.schema.json",
+  "title": "AiNIR MCP Host Context v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "context_id",
+    "context_sha256",
+    "host_id",
+    "actor_id",
+    "evaluation_time",
+    "server_binding",
+    "schema_validation",
+    "capability_grants",
+    "resource_resolution",
+    "consent",
+    "transaction",
+    "production_runtime_ready"
+  ],
+  "properties": {
+    "kind": {
+      "const": "AiNIRMCPHostContext"
+    },
+    "version": {
+      "const": "ainir.mcp-host-context.v1"
+    },
+    "context_id": {
+      "type": "string",
+      "pattern": "^ainir\\.mcp\\.context\\.[0-9a-f]{20}$"
+    },
+    "context_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "host_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+    },
+    "actor_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+    },
+    "evaluation_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "server_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "server_id",
+        "server_origin",
+        "authorization_audience",
+        "authenticated",
+        "protocol_version",
+        "method_header",
+        "name_header"
+      ],
+      "properties": {
+        "server_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+        },
+        "server_origin": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+        },
+        "authorization_audience": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+        },
+        "authenticated": {
+          "type": "boolean"
+        },
+        "protocol_version": {
+          "enum": [
+            "2025-11-25",
+            "2026-07-28"
+          ]
+        },
+        "method_header": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name_header": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "schema_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "validator_id",
+        "input_schema_sha256",
+        "arguments_sha256"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "not_checked"
+          ]
+        },
+        "validator_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+        },
+        "input_schema_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "arguments_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "capability_grants": {
+      "type": "array",
+      "uniqueItems": true,
+      "minItems": 0,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+      }
+    },
+    "resource_resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "resolver_id",
+        "requested_resources_sha256",
+        "scope_ids",
+        "symlinks_resolved"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "passed",
+            "failed",
+            "not_checked"
+          ]
+        },
+        "resolver_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+        },
+        "requested_resources_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "scope_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+          }
+        },
+        "symlinks_resolved": {
+          "type": "boolean"
+        }
+      }
+    },
+    "consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision",
+        "actor_id",
+        "envelope_sha256",
+        "arguments_sha256",
+        "requested_resources_sha256",
+        "issued_at",
+        "valid_until",
+        "consent_id"
+      ],
+      "properties": {
+        "decision": {
+          "enum": [
+            "approved",
+            "denied",
+            "not_requested"
+          ]
+        },
+        "actor_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+        },
+        "envelope_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "arguments_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "requested_resources_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "consent_id": {
+          "type": "string",
+          "pattern": "^ainir\\.mcp\\.consent\\.[0-9a-f]{20}$"
+        }
+      }
+    },
+    "transaction": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "transaction_id",
+            "status",
+            "envelope_sha256",
+            "requested_resources_sha256",
+            "rollback_available",
+            "rollback_plan_sha256"
+          ],
+          "properties": {
+            "transaction_id": {
+              "type": "string",
+              "pattern": "^ainir\\.mcp\\.transaction\\.[0-9a-f]{20}$"
+            },
+            "status": {
+              "enum": [
+                "prepared",
+                "refused",
+                "not_ready"
+              ]
+            },
+            "envelope_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "requested_resources_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "rollback_available": {
+              "type": "boolean"
+            },
+            "rollback_plan_sha256": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^sha256:[0-9a-f]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "production_runtime_ready": {
+      "const": false
+    }
+  }
+}

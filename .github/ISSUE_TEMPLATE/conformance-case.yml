@@ -1,0 +1,24 @@
+name: Conformance case
+description: Propose a positive, refused, invalid, mutation, or replay case
+title: "[conformance] "
+labels: [conformance]
+body:
+  - type: dropdown
+    attributes:
+      label: Case type
+      options: [positive, refused, invalid, mutation, receipt-replay]
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Semantic claim and expected decision
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Minimal sanitized fixture
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected rules, gates, or receipt checks

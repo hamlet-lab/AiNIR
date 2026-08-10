@@ -268,6 +268,12 @@ def _canonical_verified_intent_packet_hash(packet: Mapping[str, Any]) -> str:
     return _canonical_json_hash(_canonical_verified_intent_packet_payload(packet))
 
 
+def canonical_verified_intent_packet_hash(packet: Mapping[str, Any]) -> str:
+    """Return the supported canonical hash for a VerifiedIntentPacket."""
+
+    return _canonical_verified_intent_packet_hash(packet)
+
+
 def validate_verified_intent_packet(packet: Mapping[str, Any]) -> list[str]:
     """Validate the public-demo VerifiedIntentPacket contract.
 

@@ -4,6 +4,7 @@ import argparse
 import fnmatch
 import json
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -237,11 +238,19 @@ def _scan_packaging_cleanliness(work_root: Path) -> dict[str, Any]:
             findings.append(f'private_archive_marker_in_public_repo:{rel}')
     required_files = [
         'README.md', 'START_HERE.md', 'LICENSE', 'NOTICE', 'pyproject.toml',
+        'MANIFEST.in', 'AGENTS.md', 'PUBLIC_SCOPE.md', 'PROTECTED_INVARIANTS.md',
+        'SECURITY.md', 'SUPPORT.md', 'MAINTAINERS.md', 'CHANGELOG.md',
         '.github/workflows/ci.yml',
+        '.github/CODEOWNERS', '.github/PULL_REQUEST_TEMPLATE.md',
         'docs/pre_v1_status.md', 'docs/public_private_boundary.md',
         'docs/private_archive_boundary.md', 'docs/github_launch_checklist.md',
         'schemas/verified_intent_packet.schema.json', 'registries/safety_registry.yaml',
         'registries/external_consumer_profiles.yaml',
+        'src/ainir/_version.py', 'src/ainir/resources.py',
+        'src/ainir/schemas/verified_intent_packet.schema.json',
+        'docs/distribution_contracts.md',
+        'docs/development/p1-release-contracts-2026-08-10.md',
+        'scripts/check_distribution_contracts.py',
     ]
     for rel in required_files:
         if not (work_root / rel).exists():
@@ -296,19 +305,86 @@ def _scan_status_claims(work_root: Path) -> dict[str, Any]:
     return {'name': 'status_claim_scope', 'status': 'passed' if not findings else 'failed', 'findings': findings}
 
 
+def _ci_shell_commands(text: str) -> list[list[str]]:
+    """Tokenize simple commands found in GitHub Actions ``run`` entries.
+
+    This is deliberately a narrow static check rather than a general shell or
+    YAML interpreter. It accepts inline ``run: command`` entries and commands
+    inside ``run: |`` blocks, joins backslash continuations, ignores comments,
+    and uses :mod:`shlex` so quoting and harmless option ordering do not change
+    the result.
+    """
+
+    logical_text = text.replace('\\\n', ' ')
+    commands: list[list[str]] = []
+    for raw_line in logical_text.splitlines():
+        line = raw_line.strip()
+        if line.startswith('- run:'):
+            line = line[len('- run:'):].strip()
+        elif line.startswith('run:'):
+            line = line[len('run:'):].strip()
+        if not line or line in {'|', '>'} or line.startswith('#'):
+            continue
+        try:
+            tokens = shlex.split(line, comments=True, posix=True)
+        except ValueError:
+            continue
+        if tokens:
+            commands.append(tokens)
+    return commands
+
+
+def _is_locked_editable_dev_install(tokens: list[str]) -> bool:
+    """Recognize a constrained editable dev install in common pip forms."""
+
+    if tokens[:3] == ['python', '-m', 'pip']:
+        args = tokens[3:]
+    elif tokens and tokens[0] in {'pip', 'pip3'}:
+        args = tokens[1:]
+    else:
+        return False
+    if not args or args[0] != 'install':
+        return False
+
+    install_args = args[1:]
+    editable = False
+    constrained = False
+    for index, token in enumerate(install_args):
+        next_token = install_args[index + 1] if index + 1 < len(install_args) else None
+        if token in {'-e', '--editable'} and next_token == '.[dev]':
+            editable = True
+        elif token.startswith('--editable=') and token.split('=', 1)[1] == '.[dev]':
+            editable = True
+        if token in {'-c', '--constraint'} and next_token == 'requirements.lock.txt':
+            constrained = True
+        elif token.startswith('--constraint=') and token.split('=', 1)[1] == 'requirements.lock.txt':
+            constrained = True
+    return editable and constrained
+
+
+def _is_full_pytest_gate(tokens: list[str]) -> bool:
+    """Return true for a repository-wide ``python -m pytest`` invocation."""
+
+    if tokens[:3] != ['python', '-m', 'pytest']:
+        return False
+    selectors = [
+        token for token in tokens[3:]
+        if '::' in token or token.endswith('.py') or token.startswith('tests/')
+    ]
+    return not selectors
+
+
 def _scan_ci(work_root: Path) -> dict[str, Any]:
     findings: list[str] = []
     ci = work_root / '.github/workflows/ci.yml'
     if not ci.exists():
         return {'name': 'github_actions_ci_static', 'status': 'failed', 'findings': ['missing_ci_file']}
     text = ci.read_text(encoding='utf-8', errors='ignore')
-    install_snippets = [
-        'pip install -e ".[dev]"',
-        'pip install -c requirements.lock.txt -e ".[dev]"',
-        'python -m pip install -c requirements.lock.txt -e ".[dev]"',
-    ]
-    if not any(snippet in text for snippet in install_snippets):
-        findings.append('ci_missing_snippet:pip install -e ".[dev]" or locked equivalent')
+    commands = _ci_shell_commands(text)
+    if not any(_is_locked_editable_dev_install(command) for command in commands):
+        findings.append('ci_missing_locked_editable_dev_install')
+    if not any(_is_full_pytest_gate(command) for command in commands):
+        findings.append('ci_missing_full_pytest_gate')
     has_phase26 = 'run_phase26_private_trial.py' in text
     has_phase30 = 'run_phase30_v1_rc_candidate_check.py' in text
     if not (has_phase26 or has_phase30):
@@ -368,10 +444,10 @@ def run_phase26_private_trial(out_dir: str | Path) -> dict[str, Any]:
     commands = [
         *[(f'pytest_{Path(file).stem}', [py, '-m', 'pytest', '-q', '-p', 'no:cacheprovider', file], True, 90) for file in pytest_files],
         ('public_demo', [py, '-m', 'ainir', 'demo', '--out-dir', _trial_output_str(work_root, 'ainir_phase26_demo')], True, 120),
-        ('negative_conformance_eval', [py, '-m', 'ainir', 'negative-conformance-eval', '--out-dir', _trial_output_str(work_root, 'ainir_phase26_negative_conformance')], True, 180),
-        ('golden_trace_eval', [py, '-m', 'ainir', 'golden-trace-eval', '--out-dir', _trial_output_str(work_root, 'ainir_phase26_golden_traces')], True, 180),
-        ('phase18_trust_gate_eval', [py, '-m', 'ainir', 'phase18-trust-gate-eval', '--out-dir', _trial_output_str(work_root, 'ainir_phase26_phase18_trust_gate')], True, 120),
-        ('phase25_verified_intent_contract_eval', [py, '-m', 'ainir', 'phase25-verified-intent-contract-eval', '--out-dir', _trial_output_str(work_root, 'ainir_phase26_phase25_verified_intent_contract')], True, 120),
+        ('negative_conformance_eval', [py, '-m', 'ainir', 'conformance', 'negative', '--out-dir', _trial_output_str(work_root, 'ainir_phase26_negative_conformance')], True, 180),
+        ('golden_trace_eval', [py, '-m', 'ainir', 'conformance', 'golden', '--out-dir', _trial_output_str(work_root, 'ainir_phase26_golden_traces')], True, 180),
+        ('phase18_trust_gate_eval', [py, '-m', 'ainir', 'conformance', 'trust-gate', '--out-dir', _trial_output_str(work_root, 'ainir_phase26_phase18_trust_gate')], True, 120),
+        ('phase25_verified_intent_contract_eval', [py, '-m', 'ainir', 'conformance', 'intent-contract', '--out-dir', _trial_output_str(work_root, 'ainir_phase26_phase25_verified_intent_contract')], True, 120),
         ('safe_lowering_cli', [py, '-m', 'ainir', 'lower', 'examples/create_user_outbox_safe/draft.yaml', '--out-dir', _trial_output_str(work_root, 'ainir_phase26_safe_lowering')], True, 90),
     ]
     for name, cmd, expect_success, timeout in commands:

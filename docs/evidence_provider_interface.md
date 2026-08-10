@@ -1,42 +1,63 @@
-# Evidence Provider Interface Roadmap
+# Evidence Provider interface
 
-The public AiNIR evidence ledger is deterministic and bundled with the demo. It is designed to demonstrate the rule:
+The public AiNIR evidence ledger remains deterministic and bundled with the
+demo. It demonstrates the rule:
 
 > A model cannot verify its own evidence.
 
-In the public demo, `verified` claims must bind to known evidence records. This prevents self-attested fields such as `checked: true`, `source: claude`, or `evidence_checked` from becoming facts.
+P5 adds a bounded offline provider interface so external candidate records can
+be resolved and independently checked without being trusted or automatically
+inserted into that ledger.
 
-## Current public scope
+## Implemented public scope
 
-The bundled ledger is fixture-backed. It is not an enterprise evidence backend.
+The RC implements:
+
+- `EvidenceRequest` with exact claim and draft binding;
+- `EvidenceRecord` with issuer, provenance, validity, revocation, reliability,
+  and self-hash fields;
+- `EvidenceProviderPolicy` with explicit allowlists and minimum requirements;
+- deterministic `EvidenceBundle`, `EvidenceResolution`, and
+  `EvidenceValidationReport` artifacts;
+- fixture, root-confined file, and HMAC-signed local bundle adapters;
+- duplicate-key, size, depth, non-finite-value, path-escape, tamper, expiry,
+  bounded revocation-freshness, exact bundle-record membership, and key-ID
+  checks;
+- host-key-based independent signature recomputation rather than trust in a
+  provider's own validation or signature claim;
+- a fail-closed guarantee that successful provider validation produces only a
+  `validated_candidate`, never automatic Trust Gate promotion.
+
+See [`offline_evidence_providers.md`](offline_evidence_providers.md) for the
+contract, CLI, and security model.
+
+## What remains bundled
+
+The existing Trust Gate still accepts `verified` claims only when they bind to
+known records in the active AiNIR Evidence Ledger. Fields such as
+`checked: true`, `source: model`, or `evidence_checked` remain self-attestation
+and do not become facts.
 
 ## Future production path
 
-A production deployment should provide evidence through explicit providers, for example:
+A production deployment would need separately governed provider adapters for
+sources such as:
 
-- host policy engine evidence;
-- human approval evidence;
-- audit/event log evidence;
-- authorization ticket evidence;
-- test or verifier report evidence;
-- runtime observation evidence.
+- host policy-engine decisions;
+- human approval records;
+- audit or event logs;
+- authorization tickets;
+- test or verifier reports;
+- runtime observations.
 
-Each provider should issue stable evidence records with:
+It would also need public-key issuer identity, key rotation, revocation,
+organizational authorization, secure transport, durable storage, ledger
+promotion policy, and audit/replay governance. None of those is implied by the
+P5 HMAC example.
 
-- issuer id;
-- evidence id;
-- claim scope;
-- artifact hash;
-- policy version;
-- timestamp or validity window;
-- integrity binding;
-- revocation or expiry policy.
+## Boundary
 
-## Non-goal for the public repo
-
-The public repo does not implement a live evidence provider network. It demonstrates the evidence boundary and keeps fake or self-attested evidence from promoting claims.
-
-
-## The bundled public ledger is not enough for production
-
-The public ledger is deliberately self-contained so the demo is deterministic. A real deployment needs provider adapters for approval tickets, policy-engine decisions, audit/event logs, verifier reports, and human review records. Without that provider layer, most new claims should remain hypothesized or unverified.
+The public repo does not implement a live evidence provider network. It does
+not perform network I/O, store credentials, or authorize execution. The P5
+adapters exist to make the evidence boundary testable and extensible while
+keeping provider output untrusted by default.

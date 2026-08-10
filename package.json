@@ -1,8 +1,8 @@
 {
-  "name": "ainir-public-demo",
-  "version": "1.0.0-rc.1",
+  "name": "ainir-typescript-compile-fixture",
+  "version": "0.0.0-private",
   "private": true,
-  "description": "AiNIR public demo local TypeScript skeleton compile dependency lock.",
+  "description": "Private TypeScript compile fixture; this metadata does not define the AiNIR Python release.",
   "devDependencies": {
     "typescript": "5.8.3"
   },

@@ -63,8 +63,8 @@ complete formal proof system
 ## v1.0 RC candidate required pre-upload command
 
 ```bash
-python -m ainir phase30-v1-rc-candidate-check --out-dir /tmp/ainir_phase30_v1_rc_candidate
-python scripts/run_phase26_private_trial.py --out-dir /tmp/ainir_phase26_private_trial
+python -m ainir conformance release-candidate --out-dir /tmp/ainir_phase30_v1_rc_candidate
+python -m ainir conformance private-trial --out-dir /tmp/ainir_phase26_private_trial
 ```
 
 Only upload to a private GitHub repository after this passes.

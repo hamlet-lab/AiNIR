@@ -1,0 +1,26 @@
+module: demo.order_payment_real_payment_blocked
+workflow: OrderPayment
+task: ProcessOrderPaymentWorker
+environment: beta
+executable: false
+input_type: PaymentIntentInput
+output_type: PaymentResult
+claims:
+  - id: claim.real_payment_is_allowed
+    status: verified
+    statement: "The real payment effect is safe to run in beta."
+    evidence: []
+operations:
+  - id: op.load_payment_intent
+    op: db.get_payment_intent
+    effects: [effect.storage.db.read]
+    capabilities: [cap.db.payment.read]
+  - id: op.charge_real_provider
+    op: payment.charge.real
+    effects: [effect.external.payment.charge.real]
+    capabilities: [cap.payment.charge.real]
+  - id: op.mark_paid
+    op: db.update_payment_status
+    effects: [effect.storage.db.write]
+    capabilities: [cap.db.payment.write]
+return: state

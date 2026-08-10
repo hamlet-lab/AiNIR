@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/registry_migration_record.schema.json",
+  "title": "AiNIR RegistryMigrationRecord v1",
+  "description": "Explicit local review binding. Cryptographic signatures are not implemented in RC2 and production_runtime_ready remains false.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "migration_id",
+    "record_sha256",
+    "source_snapshot_sha256",
+    "target_snapshot_sha256",
+    "source_runtime_snapshot_hash",
+    "target_runtime_snapshot_hash",
+    "registry_diff_sha256",
+    "overall_classification",
+    "acknowledged_change_ids",
+    "authorization",
+    "cryptographic_signature_status",
+    "production_runtime_ready"
+  ],
+  "properties": {
+    "kind": {
+      "const": "AiNIRRegistryMigrationRecord"
+    },
+    "version": {
+      "const": "ainir.registry-migration-record.v1"
+    },
+    "migration_id": {
+      "type": "string",
+      "pattern": "^ainir\\.registry\\.migration\\.[0-9a-f]{20}$"
+    },
+    "record_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "source_snapshot_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "target_snapshot_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "source_runtime_snapshot_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "target_runtime_snapshot_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "registry_diff_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "overall_classification": {
+      "enum": [
+        "tightening",
+        "compatible",
+        "behavioral",
+        "relaxation",
+        "breaking",
+        "unknown"
+      ]
+    },
+    "acknowledged_change_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^ainir\\.registry\\.change\\.[0-9a-f]{20}$"
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "actor_id",
+        "mechanism",
+        "reason",
+        "evidence_ref"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "approved",
+            "review_required"
+          ]
+        },
+        "actor_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+        },
+        "mechanism": {
+          "const": "explicit_local_review"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 8
+        },
+        "evidence_ref": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 512
+        }
+      }
+    },
+    "cryptographic_signature_status": {
+      "const": "not_implemented"
+    },
+    "production_runtime_ready": {
+      "const": false
+    }
+  }
+}

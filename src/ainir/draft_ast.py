@@ -16,9 +16,10 @@ from collections.abc import Mapping
 from typing import Any
 
 from .core import DraftModule, Finding
+from .registry_context import DynamicRegistryProxy
 from .safety_registry import get_registry, strict_safe_id
 
-REGISTRY = get_registry()
+REGISTRY = DynamicRegistryProxy(get_registry)
 
 _SAFE_STATUS_VALUES = {"hypothesized", "verified", "unverified"}
 _OPTIONAL_PASSTHROUGH_FIELDS = {

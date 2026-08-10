@@ -32,6 +32,43 @@ def test_phase26_ci_uses_private_trial_gate():
     assert result["status"] == "passed", result
 
 
+def test_phase26_ci_accepts_locked_editable_install_with_constraints(tmp_path):
+    workflow = tmp_path / ".github" / "workflows" / "ci.yml"
+    workflow.parent.mkdir(parents=True)
+    workflow.write_text(
+        """name: test
+jobs:
+  test:
+    steps:
+      - run: |
+          python -m pip install --editable=.[dev] --constraint=requirements.lock.txt
+          python -m pytest -q -p no:cacheprovider
+          python scripts/run_phase30_v1_rc_candidate_check.py --mode quick-integrity
+""",
+        encoding="utf-8",
+    )
+    result = _scan_ci(tmp_path)
+    assert result["status"] == "passed", result
+
+
+def test_phase26_ci_rejects_quick_gate_without_full_pytest(tmp_path):
+    workflow = tmp_path / ".github" / "workflows" / "ci.yml"
+    workflow.parent.mkdir(parents=True)
+    workflow.write_text(
+        """name: test
+jobs:
+  test:
+    steps:
+      - run: |
+          python -m pip install -c requirements.lock.txt -e ".[dev]"
+          python scripts/run_phase30_v1_rc_candidate_check.py --mode quick-integrity
+""",
+        encoding="utf-8",
+    )
+    result = _scan_ci(tmp_path)
+    assert result["status"] == "failed", result
+    assert "ci_missing_full_pytest_gate" in result["findings"]
+
 def test_phase26_copy_temp_parent_is_outside_repo(monkeypatch, tmp_path):
     repo_local_temp = ROOT / '.codex_tmp'
     repo_local_temp.mkdir(exist_ok=True)

@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from .core import load_yaml_no_duplicate_keys
+from .registry_context import active_registry_bundle
 
 
 def _sha256_bytes(data: bytes) -> str:
@@ -115,6 +116,10 @@ def stable_registry_snapshot_projection(snapshot: Mapping[str, Any]) -> dict[str
 
 
 def registry_snapshot() -> dict[str, Any]:
+    bundle = active_registry_bundle()
+    if bundle is not None:
+        return json.loads(json.dumps(bundle.snapshot, sort_keys=True, ensure_ascii=False))
+
     root = _repo_root()
     pkg = _package_registry_dir()
     items = {

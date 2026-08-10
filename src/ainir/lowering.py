@@ -8,14 +8,15 @@ from .core import DraftModule, VerificationReport
 from .draft_ast import parse_draft_ast
 from .execution_context import TrustedExecutionContext
 from .lowering_gate import assess_lowering_eligibility
+from .registry_context import DynamicRegistryProxy
 from .safety_registry import get_registry
 from .operation_registry import get_operation_registry
 from .transaction_contract import extract_transactions, transaction_for_operation
 
-REGISTRY = get_registry()
-OP_REGISTRY = get_operation_registry()
+REGISTRY = DynamicRegistryProxy(get_registry)
+OP_REGISTRY = DynamicRegistryProxy(get_operation_registry)
 
-_LOWERING_REGISTRY = get_registry()
+_LOWERING_REGISTRY = DynamicRegistryProxy(get_registry)
 
 
 _SAFE_SLUG_RE = re.compile(r"[^A-Za-z0-9_.-]+")

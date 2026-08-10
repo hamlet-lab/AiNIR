@@ -1,0 +1,43 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$title: AiNIR Public Demo Draft Module
+$type: object
+required:
+  - module
+  - workflow
+  - task
+  - operations
+properties:
+  module:
+    type: string
+  workflow:
+    type: string
+  task:
+    type: string
+  environment:
+    type: string
+  executable:
+    type: boolean
+  operations:
+    type: array
+    items:
+      type: object
+      required: [id, op, effects]
+      properties:
+        id: {type: string}
+        op: {type: string}
+        effects:
+          type: array
+          items: {type: string}
+        capabilities:
+          type: array
+          items: {type: string}
+        policies:
+          type: array
+          items: {type: string}
+  claims:
+    type: array
+  holes:
+    type: array
+  policies:
+    type: array
+additionalProperties: true

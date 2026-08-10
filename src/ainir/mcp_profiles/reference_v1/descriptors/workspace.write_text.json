@@ -1,0 +1,40 @@
+{
+  "name": "workspace.write_text",
+  "title": "Write workspace text",
+  "description": "Replace one UTF-8 text file within the host-authorized workspace scope.",
+  "inputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["path", "content"],
+    "properties": {
+      "path": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096
+      },
+      "content": {
+        "type": "string",
+        "maxLength": 100000
+      }
+    }
+  },
+  "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["bytes_written"],
+    "properties": {
+      "bytes_written": {"type": "integer", "minimum": 0}
+    }
+  },
+  "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": false,
+    "idempotentHint": true,
+    "openWorldHint": false
+  },
+  "execution": {
+    "taskSupport": "forbidden"
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/evidence_request.schema.json",
+  "title": "AiNIR EvidenceRequest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "request_id",
+    "provider_id",
+    "evidence_id",
+    "expected_kind",
+    "claim_scope",
+    "subject_binding",
+    "evaluation_time",
+    "production_runtime_ready"
+  ],
+  "properties": {
+    "kind": {
+      "const": "AiNIREvidenceRequest"
+    },
+    "version": {
+      "const": "ainir.evidence-request.v1"
+    },
+    "request_id": {
+      "type": "string",
+      "pattern": "^ainir\\.evidence\\.request\\.[0-9a-f]{20}$"
+    },
+    "provider_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+    },
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+    },
+    "expected_kind": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "claim_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "module_id",
+        "workflow",
+        "claim_id",
+        "claim_statement_sha256"
+      ],
+      "properties": {
+        "module_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+        },
+        "workflow": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+        },
+        "claim_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+        },
+        "claim_statement_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "subject_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw_source_sha256",
+        "canonical_draft_sha256"
+      ],
+      "properties": {
+        "raw_source_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "canonical_draft_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "evaluation_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "production_runtime_ready": {
+      "const": false
+    }
+  }
+}

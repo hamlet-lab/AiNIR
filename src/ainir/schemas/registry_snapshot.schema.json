@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/registry_snapshot.schema.json",
+  "title": "AiNIR RegistrySnapshot Artifact v1",
+  "description": "Portable review/replay snapshot. It is not a production registry service or a cryptographically signed artifact.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "snapshot_id",
+    "snapshot_sha256",
+    "profile_id",
+    "parent_snapshot_hash",
+    "runtime_registry_snapshot_hash",
+    "runtime_snapshot",
+    "components",
+    "valid",
+    "production_runtime_ready"
+  ],
+  "properties": {
+    "kind": {
+      "const": "AiNIRRegistrySnapshotArtifact"
+    },
+    "version": {
+      "const": "ainir.registry-snapshot.v1"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "pattern": "^ainir\\.registry\\.snapshot\\.[0-9a-f]{20}$"
+    },
+    "snapshot_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "profile_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+    },
+    "parent_snapshot_hash": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "runtime_registry_snapshot_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "runtime_snapshot": {
+      "type": "object",
+      "required": [
+        "kind",
+        "version",
+        "items",
+        "combined_sha256",
+        "valid"
+      ],
+      "properties": {
+        "kind": {
+          "const": "AiNIRRegistrySnapshot"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "items": {
+          "type": "object",
+          "minProperties": 4,
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "label",
+              "raw_sha256",
+              "canonical_sha256"
+            ],
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_path": {
+                "type": "string"
+              },
+              "raw_sha256": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "canonical_sha256": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "missing": {
+                "type": "boolean"
+              },
+              "load_error": {},
+              "copy_drift": {
+                "type": "boolean"
+              },
+              "duplicate_record_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "combined_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "valid": {
+          "const": true
+        },
+        "profile_id": {
+          "type": "string"
+        },
+        "profile_manifest_sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "base_registry_snapshot_hash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "components": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "safety_registry",
+        "operation_spec_registry",
+        "evidence_ledger",
+        "external_consumer_profiles"
+      ],
+      "properties": {
+        "safety_registry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "canonical_sha256",
+            "data"
+          ],
+          "properties": {
+            "canonical_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "data": {
+              "type": "object"
+            }
+          }
+        },
+        "operation_spec_registry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "canonical_sha256",
+            "data"
+          ],
+          "properties": {
+            "canonical_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "data": {
+              "type": "object"
+            }
+          }
+        },
+        "evidence_ledger": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "canonical_sha256",
+            "data"
+          ],
+          "properties": {
+            "canonical_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "data": {
+              "type": "object"
+            }
+          }
+        },
+        "external_consumer_profiles": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "canonical_sha256",
+            "data"
+          ],
+          "properties": {
+            "canonical_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "data": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "valid": {
+      "const": true
+    },
+    "production_runtime_ready": {
+      "const": false
+    }
+  }
+}

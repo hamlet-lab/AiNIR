@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/conformance_report.schema.json",
+  "title": "AiNIR Conformance Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "version", "profile_id", "profile_version", "manifest_sha256", "registry_mode", "registry_snapshot_hash", "source_pack", "overall_status", "case_count", "passed", "failed", "category_counts", "results", "output_dir", "production_runtime_ready", "report_sha256"],
+  "properties": {
+    "kind": {"const": "AiNIRConformanceReport"}, "version": {"const": "ainir.conformance-report.v1"},
+    "profile_id": {"type": "string"}, "profile_version": {"type": "string"}, "manifest_sha256": {"type": "string"},
+    "registry_mode": {"enum": ["packaged", "additive"]}, "registry_snapshot_hash": {"type": "string"},
+    "source_pack": {"type": "string"}, "overall_status": {"enum": ["passed", "failed"]},
+    "case_count": {"type": "integer", "minimum": 0}, "passed": {"type": "integer", "minimum": 0}, "failed": {"type": "integer", "minimum": 0},
+    "category_counts": {"type": "object"}, "results": {"type": "array", "items": {"type": "object"}},
+    "output_dir": {"type": "string"}, "production_runtime_ready": {"const": false}, "report_sha256": {"type": "string"}
+  }
+}

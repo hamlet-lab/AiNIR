@@ -1,5 +1,10 @@
-release_candidate: AiNIR v1.0 RC Candidate Patch 7
-status: rc_candidate_patch7
+release_candidate: AiNIR v1.0.0 RC2
+status: rc_candidate_2
+python_distribution_name: ainir-public-demo
+python_distribution_version: 1.0.0rc2
+release_tag: v1.0.0-rc.2
+npm_metadata_role: private_typescript_compile_fixture
+previous_public_candidate: AiNIR v1.0 RC Candidate Patch 7
 not_v1_final: true
 production_runtime_ready: false
 human_external_review: pending
@@ -17,13 +22,37 @@ frozen_public_surfaces:
   - Negative Conformance Corpus
   - Golden Traces
   - Launch Readiness / Private Trial Checks
+  - Public Resource API
+  - Packaged Public Schemas
+  - Stable Public CLI
+  - Stable Artifact Contract Identifiers
+  - Canonical JSON and Runtime Contract Validation API
+  - Legacy CLI and Receipt Compatibility Layer
+  - Profile Manifest v1 and Profile Authoring SDK
+  - Standalone Profile Conformance Runner
+  - Context-local Additive Profile Registry Bundles
+  - RegistrySnapshot v1 Artifacts
+  - RegistryDiff v1 Semantic Classification
+  - RegistryMigrationRecord v1 Explicit Review Bindings
+  - Exact / Current / Migrated TrustReceipt Replay Modes
+  - Offline EvidenceProvider Contract Suite
+  - Fixture / File / Signed-Bundle Evidence Adapters
+  - Evidence Candidate Validation Reports
+  - MCP Tool-Call Profile / Envelope / Host Context / Assessment Contracts
+  - Host-Owned Non-Executing MCP Reference Adapter
+  - MCP Tool-Call Conformance Pack and Report
 known_limitations:
   - no production runtime backend
   - bounded public workflow registry
   - no enterprise evidence ledger backend
+  - offline EvidenceProvider candidates are not automatically promoted into the Trust Gate ledger
+  - signed-bundle HMAC is a local integrity demo, not public-key issuer attestation
   - no complete enterprise effect taxonomy
-  - exact registry-snapshot TrustReceipt replay only
+  - migrated replay uses explicit unsigned local-review opt-in; cryptographic signatures are not implemented
+  - no production registry service, distributed lock, or registry authorization backend
   - no downstream integration implementation
+  - no MCP transport, OAuth, task runtime, elicitation, sampling, multi-round execution, or tool execution
+  - MCP descriptions and annotations remain untrusted and a passed assessment is not proof of server/tool safety
   - no v1 final stability claim
 required_checks:
   - pytest
@@ -34,6 +63,12 @@ required_checks:
   - phase26_private_trial
   - phase30_v1_rc_candidate_check
   - trust_surface_consistency_patch2
+  - stable_cli_and_artifact_contracts_p2
+  - profile_sdk_and_conformance_p3
+  - registry_evolution_and_replay_p4
+  - offline_evidence_providers_p5
+  - mcp_tool_call_profile_p6
+  - openai_function_tool_adapter_p7
 
 patch2_trust_surface_consistency:
   lowering_preflight_matches_trust_gate: true
@@ -87,3 +122,135 @@ patch7_repo_local_temp_isolation:
   phase26_uses_out_of_checkout_trial_workspace: true
   phase26_sanitizes_child_ainir_temp_root: true
   repo_local_temp_paths_reported_as_warnings: true
+
+
+p1_release_identity_and_distributable_contracts:
+  python_version_single_source: true
+  python_metadata_dynamic_from_package: true
+  npm_metadata_explicitly_private_fixture: true
+  public_schemas_packaged: true
+  supported_resource_api: true
+  wheel_and_sdist_contract_check: true
+  source_and_wheel_resource_hash_parity: true
+  cross_platform_ci_smoke_declared: true
+
+p2_stable_cli_and_artifact_contracts:
+  stable_user_facing_command_groups: true
+  legacy_commands_hidden_but_reproducible: true
+  deprecation_replacements_on_stderr: true
+  stable_trust_gate_decision_contract: true
+  stable_trust_receipt_contract: true
+  stable_replay_report_contract: true
+  stable_legacy_receipt_conversion: true
+  exact_replay_for_stable_and_legacy_receipts: true
+  supported_canonical_json_api: true
+  supported_runtime_contract_validation: true
+  public_docs_use_phase_independent_commands: true
+  private_trial_uses_phase_independent_commands: true
+
+p3_profile_sdk_and_conformance:
+  profile_manifest_v1_implemented: true
+  conformance_pack_v1_implemented: true
+  conformance_report_v1_implemented: true
+  bundled_public_demo_profile: true
+  additive_profile_scaffold: true
+  context_local_registry_bundle: true
+  protected_registry_collision_refusal: true
+  fail_closed_profile_policies: true
+  standalone_conformance_runner: true
+  console_json_jsonl_junit_yaml_reports: true
+  existing_public_registry_hash_preserved: true
+  existing_receipt_projection_preserved: true
+  reviewed_exact_effect_capability_vocabulary_only: true
+  taxonomy_alias_and_external_allowlist_refusal: true
+  broad_family_and_capability_prefix_refusal: true
+  safety_critical_operation_alias_refusal: true
+  non_vacuous_conformance_expectations: true
+  additive_legacy_source_adapter_refusal: true
+
+
+p4_registry_evolution_and_replay:
+  registry_snapshot_v1_implemented: true
+  registry_diff_v1_implemented: true
+  registry_migration_record_v1_implemented: true
+  legacy_registry_snapshot_cli_preserved: true
+  portable_snapshot_component_hash_binding: true
+  semantic_change_classification: true
+  unknown_change_fail_conservative: true
+  exact_snapshot_replay_preserved: true
+  current_registry_replay_implemented: true
+  migrated_registry_replay_implemented: true
+  historical_receipt_never_rewritten: true
+  migration_requires_approved_record: true
+  unsigned_local_approval_requires_explicit_opt_in: true
+  target_registry_full_trust_gate_reevaluation: true
+  source_snapshot_receipt_binding: true
+  registry_snapshot_sidecar_on_stable_receipt_issue: true
+  p3_registry_hash_preserved: true
+  production_runtime_ready_false: true
+
+p5_offline_evidence_providers:
+  evidence_request_v1_implemented: true
+  evidence_record_v1_implemented: true
+  evidence_provider_policy_v1_implemented: true
+  evidence_bundle_v1_implemented: true
+  evidence_resolution_v1_implemented: true
+  evidence_validation_report_v1_implemented: true
+  fixture_provider_implemented: true
+  root_confined_file_provider_implemented: true
+  signed_bundle_provider_implemented: true
+  exact_signature_key_policy_binding: true
+  provider_signature_and_bundle_claims_independently_recomputed: true
+  resolution_record_bound_to_unique_bundle_member: true
+  revocation_freshness_window_enforced: true
+  issuer_claim_subject_validity_revocation_revalidated: true
+  provider_output_not_self_trusting: true
+  validated_candidate_not_auto_promoted: true
+  network_access_not_used: true
+  production_runtime_ready_false: true
+
+
+p6_mcp_tool_call_profile:
+  mcp_tool_call_profile_v1_implemented: true
+  mcp_tool_call_envelope_v1_implemented: true
+  mcp_host_context_v1_implemented: true
+  mcp_tool_call_assessment_v1_implemented: true
+  mcp_conformance_pack_and_report_v1_implemented: true
+  host_owned_reference_adapter_non_executing: true
+  tool_descriptions_and_annotations_not_evidence: true
+  exact_descriptor_schema_effect_capability_binding: true
+  audience_bound_authorization_metadata: true
+  credential_like_arguments_metadata_and_values_refused: true
+  resource_path_traversal_absolute_and_cross_platform_ambiguity_refused: true
+  explicit_per_call_consent_bound_to_arguments_and_resources: true
+  transaction_and_rollback_requirements_enforced: true
+  destructive_calls_capped_at_review_required: true
+  task_and_multi_round_input_not_claimed: true
+  twenty_six_case_conformance_pack: true
+  content_addressed_mcp_ids_and_nested_bindings: true
+  non_passed_assessments_do_not_instruct_execution: true
+  p5_registry_hash_preserved: true
+  network_access_not_used: true
+  trust_gate_override_not_allowed: true
+  evidence_ledger_promotion_not_allowed: true
+  production_runtime_ready_false: true
+
+
+p7_openai_function_tool_adapter:
+  external_mcp_profile_scaffold: true
+  external_conformance_file_bound_fixtures: true
+  external_scenario_shortcuts_refused: true
+  openai_function_call_binding_v1_implemented: true
+  openai_function_tool_preflight_v1_implemented: true
+  strict_exact_reviewed_schema_binding: true
+  completed_source_artifacts_required: true
+  duplicate_nonfinite_oversized_arguments_refused: true
+  credential_like_values_refused: true
+  cross_artifact_substitution_refused: true
+  no_openai_sdk_or_api_calls: true
+  no_tool_output_submission: true
+  no_mcp_transport_or_execution: true
+  p6_registry_hash_preserved: true
+  trust_gate_override_not_allowed: true
+  evidence_ledger_promotion_not_allowed: true
+  production_runtime_ready_false: true

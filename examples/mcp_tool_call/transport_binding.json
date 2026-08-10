@@ -1,0 +1,5 @@
+{
+  "protocol_version": "2026-07-28",
+  "method_header": "tools/call",
+  "name_header": "workspace.read_text"
+}

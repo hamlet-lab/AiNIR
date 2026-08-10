@@ -1,0 +1,34 @@
+{
+  "allow_trust_gate_promotion": false,
+  "allowed_evidence_kinds": [
+    "verifier_report"
+  ],
+  "allowed_issuer_ids": [
+    "issuer.ainir.offline-verifier"
+  ],
+  "allowed_issuer_kinds": [
+    "verifier"
+  ],
+  "allowed_producer_kinds": [
+    "verifier"
+  ],
+  "allowed_provider_versions": [
+    "1.0"
+  ],
+  "allowed_signature_key_ids": [],
+  "allowed_source_kinds": [
+    "fixture"
+  ],
+  "kind": "AiNIREvidenceProviderPolicy",
+  "max_revocation_age_seconds": 86400,
+  "minimum_reliability": 0.8,
+  "policy_id": "policy.ainir.fixture.v1",
+  "policy_sha256": "sha256:156abcd70f0bf617990bbbcc560ab58f6199d4b33e2ca927531aa806bd3528b7",
+  "production_runtime_ready": false,
+  "provider_id": "provider.ainir.fixture",
+  "require_active_revocation": true,
+  "require_subject_binding": true,
+  "require_validity_window": true,
+  "require_verified_signature": false,
+  "version": "ainir.evidence-provider-policy.v1"
+}
