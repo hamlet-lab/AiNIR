@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/conformance_pack.schema.json",
+  "title": "AiNIR Conformance Pack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "profile_id",
+    "cases",
+    "sources"
+  ],
+  "properties": {
+    "kind": {
+      "const": "AiNIRConformancePack"
+    },
+    "version": {
+      "const": "ainir.conformance-pack.v1"
+    },
+    "profile_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "category",
+          "expected"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "enum": [
+              "positive",
+              "negative",
+              "mutation",
+              "replay"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "draft": {
+            "type": "object"
+          },
+          "raw_yaml": {
+            "type": "string"
+          },
+          "draft_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expected": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "trust_status": {
+                "enum": [
+                  "passed",
+                  "refused",
+                  "invalid"
+                ]
+              },
+              "lowering_allowed": {
+                "type": "boolean"
+              },
+              "required_findings": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "forbidden_findings": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "receipt_replay": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "draft"
+            ]
+          },
+          {
+            "required": [
+              "raw_yaml"
+            ]
+          },
+          {
+            "required": [
+              "draft_ref"
+            ]
+          }
+        ]
+      }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "path"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "enum": [
+              "golden_traces",
+              "negative_corpus"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

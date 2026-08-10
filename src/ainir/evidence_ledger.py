@@ -18,6 +18,7 @@ import yaml
 
 from .safety_registry import get_registry
 from .core import DraftModule, Finding, load_yaml_no_duplicate_keys
+from .registry_context import active_registry_bundle
 
 _SELF_ATTEST_FIELDS = {
     "checked",
@@ -170,8 +171,15 @@ class EvidenceLedger:
 
 
 @lru_cache(maxsize=1)
-def get_evidence_ledger() -> EvidenceLedger:
+def _default_evidence_ledger() -> EvidenceLedger:
     return EvidenceLedger.load()
+
+
+def get_evidence_ledger() -> EvidenceLedger:
+    bundle = active_registry_bundle()
+    if bundle is not None:
+        return bundle.evidence_ledger
+    return _default_evidence_ledger()
 
 
 def claim_statement_sha256(statement: str) -> str:

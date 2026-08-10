@@ -6,11 +6,12 @@ from typing import Any
 from .core import DraftModule, Finding, VerificationReport
 from .draft_ast import parse_draft_ast
 from .execution_context import TrustedExecutionContext
+from .registry_context import DynamicRegistryProxy
 from .safety_registry import get_registry
 from .evidence_ledger import non_vacuous_evidence_findings
 
 
-_LOWERING_REGISTRY = get_registry()
+_LOWERING_REGISTRY = DynamicRegistryProxy(get_registry)
 
 
 @dataclass(frozen=True)

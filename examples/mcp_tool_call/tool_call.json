@@ -1,0 +1,17 @@
+{
+  "jsonrpc": "2.0",
+  "id": "call-example-read-1",
+  "method": "tools/call",
+  "params": {
+    "name": "workspace.read_text",
+    "arguments": {
+      "path": "docs/README.md"
+    },
+    "_meta": {
+      "io.modelcontextprotocol/clientInfo": {
+        "name": "ainir-reference-host",
+        "version": "1.0"
+      }
+    }
+  }
+}

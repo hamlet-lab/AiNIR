@@ -2,104 +2,50 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from hashlib import sha256
 import json
 import os
-import re
 from pathlib import Path
 from typing import Any, Mapping
 
 from .core import load_draft
-from .execution_context import TrustedExecutionContext, allowed_environments
+from .execution_context import TrustedExecutionContext
 from .trust_gate import evaluate_trust_gate
+from .canonical import (
+    DuplicateKeyJSONError,
+    MAX_JSON_BYTES,
+    MAX_JSON_DEPTH,
+    canonical_json,
+    json_depth,
+    read_json_object_artifact,
+    reject_duplicate_json_keys,
+    sha256_bytes,
+    sha256_json,
+    sha256_text,
+)
+from .contract_validation import validate_trust_receipt
+from .contracts import (
+    LEGACY_TRUST_RECEIPT_VERSION,
+    TRUST_RECEIPT_CONTRACT,
+    TRUST_RECEIPT_REPLAY_REPORT_CONTRACT,
+    TRUST_RECEIPT_REPLAY_REPORT_KIND,
+)
 
 
-def _canonical_json(data: Mapping[str, Any]) -> str:
-    return json.dumps(data, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
-
-
-def _sha256_text(text: str) -> str:
-    return "sha256:" + sha256(text.encode("utf-8")).hexdigest()
-
-
-def _sha256_json(data: Mapping[str, Any]) -> str:
-    return _sha256_text(_canonical_json(data))
-
-
-def _sha256_bytes(data: bytes) -> str:
-    return "sha256:" + sha256(data).hexdigest()
-
-
-MAX_JSON_BYTES = 1_000_000
-MAX_JSON_DEPTH = 160
-_SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
-_SAFE_TOKEN_RE = re.compile(r"^[A-Za-z0-9_.:-]{1,128}$")
-
-
-class DuplicateKeyJSONError(ValueError):
-    """Raised when a persisted trust artifact contains duplicate JSON keys."""
-
-
-def _reject_duplicate_json_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
-    seen: set[str] = set()
-    obj: dict[str, Any] = {}
-    for key, value in pairs:
-        if key in seen:
-            raise DuplicateKeyJSONError(f"duplicate JSON key {key!r}")
-        seen.add(key)
-        obj[key] = value
-    return obj
+# Backwards-compatible private aliases retained for one RC cycle. New callers
+# should import the supported helpers from ``ainir.canonical``.
+_canonical_json = canonical_json
+_sha256_text = sha256_text
+_sha256_json = sha256_json
+_sha256_bytes = sha256_bytes
+_reject_duplicate_json_keys = reject_duplicate_json_keys
 
 
 def _json_depth(value: Any, limit: int = MAX_JSON_DEPTH, current: int = 0) -> int:
-    if current > limit:
-        raise ValueError(f"JSON nesting depth exceeds {limit}")
-    if isinstance(value, dict):
-        if not value:
-            return current
-        return max(_json_depth(v, limit, current + 1) for v in value.values())
-    if isinstance(value, list):
-        if not value:
-            return current
-        return max(_json_depth(v, limit, current + 1) for v in value)
-    return current
+    return json_depth(value, limit=limit, current=current)
 
 
 def _read_json_artifact(path: str | Path, artifact_name: str = "receipt") -> dict[str, Any]:
-    source = Path(path)
-    try:
-        raw_bytes = source.read_bytes()
-    except OSError as exc:
-        return {"ok": False, "reason": "json_file_read_error", "detail": str(exc), "path": str(source)}
-    raw_hash = _sha256_bytes(raw_bytes)
-    if len(raw_bytes) > MAX_JSON_BYTES:
-        return {"ok": False, "reason": "json_file_too_large", "detail": f"JSON artifact exceeds {MAX_JSON_BYTES} byte limit", "path": str(source), "raw_file_sha256": raw_hash}
-    try:
-        text = raw_bytes.decode("utf-8")
-    except UnicodeDecodeError as exc:
-        return {"ok": False, "reason": "json_utf8_decode_error", "detail": str(exc), "path": str(source), "raw_file_sha256": raw_hash}
-    try:
-        value = json.loads(text, object_pairs_hook=_reject_duplicate_json_keys)
-    except DuplicateKeyJSONError as exc:
-        return {"ok": False, "reason": "json_duplicate_key", "detail": str(exc), "path": str(source), "raw_file_sha256": raw_hash}
-    except json.JSONDecodeError as exc:
-        return {"ok": False, "reason": "json_decode_error", "detail": str(exc), "path": str(source), "raw_file_sha256": raw_hash}
-    except (RecursionError, MemoryError, ValueError) as exc:
-        return {"ok": False, "reason": "json_resource_error", "detail": str(exc), "path": str(source), "raw_file_sha256": raw_hash}
-    if not isinstance(value, dict):
-        return {"ok": False, "reason": "json_root_not_object", "detail": type(value).__name__, "path": str(source), "raw_file_sha256": raw_hash}
-    try:
-        _json_depth(value)
-    except (ValueError, RecursionError, MemoryError) as exc:
-        return {"ok": False, "reason": "json_depth_limit_exceeded", "detail": str(exc), "path": str(source), "raw_file_sha256": raw_hash}
-    return {
-        "ok": True,
-        "value": value,
-        "path": str(source),
-        "raw_file_sha256": raw_hash,
-        "canonical_sha256": _sha256_json(value),
-        "artifact_name": artifact_name,
-    }
+    return read_json_object_artifact(path, artifact_name=artifact_name).as_dict()
 
 
 def _stable_lowering_projection(value: Any) -> dict[str, Any]:
@@ -162,7 +108,7 @@ def stable_receipt_projection(receipt: Mapping[str, Any]) -> dict[str, Any]:
     local replay unless the entire receipt is knowingly recomputed.
     """
     trusted_context = receipt.get("trusted_context") if isinstance(receipt.get("trusted_context"), Mapping) else {}
-    return {
+    projection = {
         "receipt_id": receipt.get("receipt_id"),
         "receipt_kind": receipt.get("receipt_kind"),
         "version": receipt.get("version"),
@@ -191,10 +137,49 @@ def stable_receipt_projection(receipt: Mapping[str, Any]) -> dict[str, Any]:
         "production_runtime_ready": receipt.get("production_runtime_ready"),
         "v1_final_ready": receipt.get("v1_final_ready"),
     }
+    # Preserve the exact legacy projection shape. Stable v1 receipts bind the
+    # legacy serializer marker explicitly so it cannot be silently rewritten.
+    if receipt.get("version") == TRUST_RECEIPT_CONTRACT:
+        projection["legacy_version"] = receipt.get("legacy_version")
+    return projection
 
 
 def stable_receipt_projection_hash(receipt: Mapping[str, Any]) -> str:
     return _sha256_json(stable_receipt_projection(receipt))
+
+
+def convert_trust_receipt_contract(
+    receipt: Mapping[str, Any],
+    *,
+    target_version: str = TRUST_RECEIPT_CONTRACT,
+) -> dict[str, Any]:
+    """Convert between the stable v1 and legacy pre-v1 receipt serializers.
+
+    Conversion changes only contract metadata and the derived stable projection
+    hash. Trust semantics, receipt id, evidence, registry, and decision fields
+    are preserved.
+    """
+
+    converted = json.loads(json.dumps(dict(receipt), ensure_ascii=False))
+    current = converted.get("version")
+    if target_version == LEGACY_TRUST_RECEIPT_VERSION:
+        if current == TRUST_RECEIPT_CONTRACT:
+            converted["version"] = LEGACY_TRUST_RECEIPT_VERSION
+            converted.pop("legacy_version", None)
+        elif current != LEGACY_TRUST_RECEIPT_VERSION:
+            raise ValueError(f"unsupported TrustReceipt source contract: {current!r}")
+    elif target_version == TRUST_RECEIPT_CONTRACT:
+        if current == LEGACY_TRUST_RECEIPT_VERSION:
+            converted["legacy_version"] = LEGACY_TRUST_RECEIPT_VERSION
+            converted["version"] = TRUST_RECEIPT_CONTRACT
+        elif current == TRUST_RECEIPT_CONTRACT:
+            converted.setdefault("legacy_version", LEGACY_TRUST_RECEIPT_VERSION)
+        else:
+            raise ValueError(f"unsupported TrustReceipt source contract: {current!r}")
+    else:
+        raise ValueError(f"unsupported TrustReceipt target contract: {target_version!r}")
+    converted["stable_receipt_projection_hash"] = stable_receipt_projection_hash(converted)
+    return converted
 
 
 def _read_json(path: str | Path) -> dict[str, Any]:
@@ -209,46 +194,10 @@ def _read_json(path: str | Path) -> dict[str, Any]:
 
 
 def _validate_receipt_semantics(receipt: Mapping[str, Any]) -> list[dict[str, Any]]:
-    checks: list[dict[str, Any]] = []
-    def fail(name: str, expected: Any, actual: Any) -> None:
-        checks.append({"check": name, "status": "failed", "expected": expected, "actual": actual})
+    """Compatibility wrapper around the supported contract validator."""
 
-    if not isinstance(receipt.get("receipt_id"), str) or not _SAFE_TOKEN_RE.fullmatch(str(receipt.get("receipt_id", "")).replace("ainir.trust.receipt.", "receipt.")):
-        fail("receipt_schema_valid.receipt_id", "safe receipt id string", receipt.get("receipt_id"))
-    if receipt.get("receipt_kind") != "AiNIRTrustReceipt":
-        fail("receipt_schema_valid.receipt_kind", "AiNIRTrustReceipt", receipt.get("receipt_kind"))
-    if receipt.get("status") not in {"passed", "refused", "invalid"}:
-        fail("receipt_schema_valid.status", "passed|refused|invalid", receipt.get("status"))
-    tc = receipt.get("trusted_context")
-    if not isinstance(tc, Mapping):
-        fail("receipt_schema_valid.trusted_context", "object", type(tc).__name__)
-    else:
-        env = tc.get("environment")
-        if not isinstance(env, str) or env not in set(allowed_environments()):
-            fail("receipt_schema_valid.trusted_context.environment", sorted(allowed_environments()), env)
-        for field in ("source", "purpose"):
-            value = tc.get(field)
-            if not isinstance(value, str) or not _SAFE_TOKEN_RE.fullmatch(value):
-                fail(f"receipt_schema_valid.trusted_context.{field}", "safe token", value)
-    for field in ("raw_source_sha256", "canonical_draft_sha256", "draft_hash", "verifier_report_hash", "stable_receipt_projection_hash"):
-        value = receipt.get(field)
-        if not isinstance(value, str) or not _SHA256_RE.fullmatch(value):
-            fail(f"receipt_schema_valid.{field}", "sha256:<64 lowercase hex>", value)
-    if receipt.get("registry_snapshot_hash") is not None:
-        value = receipt.get("registry_snapshot_hash")
-        if not isinstance(value, str) or not _SHA256_RE.fullmatch(value):
-            fail("receipt_schema_valid.registry_snapshot_hash", "sha256:<64 lowercase hex>", value)
-    if receipt.get("verified_intent_packet_canonical_sha256") is not None:
-        value = receipt.get("verified_intent_packet_canonical_sha256")
-        if not isinstance(value, str) or not _SHA256_RE.fullmatch(value):
-            fail("receipt_schema_valid.verified_intent_packet_canonical_sha256", "sha256:<64 lowercase hex>", value)
-        if receipt.get("verified_intent_packet_hash_algorithm") != "canonical_json_sha256":
-            fail("receipt_schema_valid.verified_intent_packet_hash_algorithm", "canonical_json_sha256", receipt.get("verified_intent_packet_hash_algorithm"))
-    if not isinstance(receipt.get("gate_results"), Mapping):
-        fail("receipt_schema_valid.gate_results", "object", type(receipt.get("gate_results")).__name__)
-    if not isinstance(receipt.get("evidence_summary"), Mapping):
-        fail("receipt_schema_valid.evidence_summary", "object", type(receipt.get("evidence_summary")).__name__)
-    return checks
+    return validate_trust_receipt(receipt)
+
 
 @dataclass(frozen=True)
 class IssuedTrustReceipt:
@@ -265,6 +214,7 @@ class IssuedTrustReceipt:
             "trust_status": self.decision.get("status"),
             "module_id": self.decision.get("module_id"),
             "workflow": self.decision.get("workflow"),
+            "receipt_version": self.receipt.get("version"),
             "receipt_path": self.receipt_path,
             "decision_path": self.decision_path,
             "manifest_path": self.manifest_path,
@@ -288,11 +238,92 @@ class ReceiptReplayReport:
             "receipt": dict(self.receipt),
         }
 
+    def as_public_dict(self) -> dict[str, Any]:
+        return {
+            "kind": TRUST_RECEIPT_REPLAY_REPORT_KIND,
+            "version": TRUST_RECEIPT_REPLAY_REPORT_CONTRACT,
+            **self.as_dict(),
+        }
+
+
+@dataclass(frozen=True)
+class ReceiptArtifactValidationReport:
+    overall_status: str
+    receipt_id: str | None
+    receipt_version: str | None
+    checks: tuple[dict[str, Any], ...] = field(default_factory=tuple)
+    receipt: Mapping[str, Any] = field(default_factory=dict)
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "overall_status": self.overall_status,
+            "receipt_id": self.receipt_id,
+            "receipt_version": self.receipt_version,
+            "checks": [dict(check) for check in self.checks],
+            "receipt": dict(self.receipt),
+        }
+
+
+def verify_trust_receipt_artifact(path: str | Path) -> ReceiptArtifactValidationReport:
+    """Validate receipt JSON, contract fields, and its stable self-hash.
+
+    This does not re-evaluate the draft or current registry. Use
+    :func:`replay_trust_receipt` when fresh semantic replay is required.
+    """
+
+    artifact = _read_json_artifact(path, artifact_name="receipt")
+    if not artifact.get("ok"):
+        check = {
+            "check": "receipt_json_valid",
+            "status": "failed",
+            "expected": "bounded duplicate-key-free UTF-8 JSON object",
+            "actual": artifact.get("reason"),
+            "detail": artifact.get("detail"),
+            "path": artifact.get("path"),
+        }
+        return ReceiptArtifactValidationReport("failed", None, None, (check,))
+    receipt = artifact["value"]
+    checks: list[dict[str, Any]] = [{
+        "check": "receipt_json_valid",
+        "status": "passed",
+        "expected": "bounded duplicate-key-free UTF-8 JSON object",
+        "actual": "valid",
+        "receipt_raw_file_sha256": artifact.get("raw_file_sha256"),
+        "receipt_canonical_sha256": artifact.get("canonical_sha256"),
+    }]
+    semantic = _validate_receipt_semantics(receipt)
+    checks.extend(semantic)
+    if not semantic:
+        checks.append({
+            "check": "receipt_contract_valid",
+            "status": "passed",
+            "expected": "supported stable or legacy TrustReceipt contract",
+            "actual": receipt.get("version"),
+        })
+    stored = receipt.get("stable_receipt_projection_hash")
+    computed = stable_receipt_projection_hash(receipt)
+    checks.append({
+        "check": "stable_receipt_projection_hash_self_check",
+        "status": "passed" if stored == computed else "failed",
+        "expected": stored,
+        "actual": computed,
+    })
+    overall = "passed" if all(check.get("status") == "passed" for check in checks) else "failed"
+    return ReceiptArtifactValidationReport(
+        overall,
+        receipt.get("receipt_id") if isinstance(receipt.get("receipt_id"), str) else None,
+        receipt.get("version") if isinstance(receipt.get("version"), str) else None,
+        tuple(checks),
+        receipt,
+    )
+
 
 def issue_trust_receipt(
     draft_path: str | Path,
     out_dir: str | Path,
     context: TrustedExecutionContext | None = None,
+    *,
+    contract_version: str = LEGACY_TRUST_RECEIPT_VERSION,
 ) -> IssuedTrustReceipt:
     """Run the Trust Gate and persist its decision plus receipt.
 
@@ -301,7 +332,13 @@ def issue_trust_receipt(
     """
     context = context or TrustedExecutionContext.public_demo()
     draft = load_draft(draft_path)
-    decision = evaluate_trust_gate(draft, context).as_dict()
+    decision_object = evaluate_trust_gate(draft, context)
+    if contract_version == LEGACY_TRUST_RECEIPT_VERSION:
+        decision = decision_object.as_dict()
+    elif contract_version == TRUST_RECEIPT_CONTRACT:
+        decision = decision_object.as_public_dict()
+    else:
+        raise ValueError(f"unsupported TrustReceipt contract: {contract_version!r}")
     receipt = dict(decision["receipt"])
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -456,7 +493,11 @@ def replay_trust_receipt(
             os.chdir(replay_cwd)
         try:
             draft = load_draft(source_path)
-            fresh = evaluate_trust_gate(draft, context).as_dict()
+            fresh_decision_object = evaluate_trust_gate(draft, context)
+            if receipt.get("version") == TRUST_RECEIPT_CONTRACT:
+                fresh = fresh_decision_object.as_public_dict()
+            else:
+                fresh = fresh_decision_object.as_dict()
         finally:
             if replay_cwd is not None:
                 os.chdir(old_cwd)
@@ -499,6 +540,8 @@ def replay_trust_receipt(
     fresh_projection_hash = stable_receipt_projection_hash(fresh_receipt)
 
     comparisons = [
+        ("receipt_version", receipt.get("version"), fresh_receipt.get("version")),
+        ("receipt_legacy_version", receipt.get("legacy_version"), fresh_receipt.get("legacy_version")),
         ("receipt_id", receipt.get("receipt_id"), fresh_receipt.get("receipt_id")),
         ("status", receipt.get("status"), fresh_receipt.get("status")),
         ("module_id", receipt.get("module_id"), fresh_receipt.get("module_id")),

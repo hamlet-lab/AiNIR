@@ -3,12 +3,13 @@ from __future__ import annotations
 from typing import List
 
 from .core import DraftModule, Finding
+from .registry_context import DynamicRegistryProxy
 from .safety_registry import get_registry
 from .operation_registry import get_operation_registry
 
 
-REGISTRY = get_registry()
-OP_REGISTRY = get_operation_registry()
+REGISTRY = DynamicRegistryProxy(get_registry)
+OP_REGISTRY = DynamicRegistryProxy(get_operation_registry)
 
 
 def normalize_draft(draft: DraftModule) -> tuple[DraftModule, List[Finding]]:

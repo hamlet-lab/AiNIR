@@ -1,0 +1,286 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/mcp_tool_call_profile.schema.json",
+  "title": "AiNIR MCP Tool-Call Profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "profile_id",
+    "profile_version",
+    "display_name",
+    "description",
+    "status",
+    "protocol_versions",
+    "policies",
+    "tools",
+    "production_runtime_ready",
+    "profile_sha256"
+  ],
+  "properties": {
+    "kind": {
+      "const": "AiNIRMCPToolCallProfile"
+    },
+    "version": {
+      "const": "ainir.mcp-tool-call-profile.v1"
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{2,127}$"
+    },
+    "profile_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "status": {
+      "enum": [
+        "reviewed",
+        "bundled"
+      ]
+    },
+    "protocol_versions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "2025-11-25",
+          "2026-07-28"
+        ]
+      }
+    },
+    "policies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unknown_tool",
+        "tool_descriptions_are_evidence",
+        "tool_annotations_are_evidence",
+        "model_output_is_evidence",
+        "ainir_executes_actions",
+        "host_executes_actions",
+        "raw_credentials_in_arguments",
+        "task_execution",
+        "consent_mode"
+      ],
+      "properties": {
+        "unknown_tool": {
+          "const": "refuse"
+        },
+        "tool_descriptions_are_evidence": {
+          "const": false
+        },
+        "tool_annotations_are_evidence": {
+          "const": false
+        },
+        "model_output_is_evidence": {
+          "const": false
+        },
+        "ainir_executes_actions": {
+          "const": false
+        },
+        "host_executes_actions": {
+          "const": true
+        },
+        "raw_credentials_in_arguments": {
+          "const": "refuse"
+        },
+        "task_execution": {
+          "const": "refuse"
+        },
+        "consent_mode": {
+          "const": "explicit_per_call"
+        }
+      }
+    },
+    "tools": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "server_id",
+          "server_origin",
+          "authorization_audience",
+          "descriptor",
+          "descriptor_sha256",
+          "input_schema_sha256",
+          "output_schema_sha256",
+          "effects",
+          "capabilities",
+          "risk_class",
+          "mutating",
+          "destructive",
+          "idempotent",
+          "resource_bindings",
+          "transaction_required",
+          "rollback_required",
+          "max_arguments_bytes",
+          "required_host_checks",
+          "decision_mode"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.-]{1,128}$"
+          },
+          "server_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+          },
+          "server_origin": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+          },
+          "authorization_audience": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+          },
+          "descriptor": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "descriptor_sha256": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "input_schema_sha256": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "output_schema_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "effects": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+            }
+          },
+          "capabilities": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+            }
+          },
+          "risk_class": {
+            "enum": [
+              "read_only",
+              "state_change",
+              "destructive",
+              "network",
+              "credential_sensitive",
+              "financial",
+              "account_change"
+            ]
+          },
+          "mutating": {
+            "type": "boolean"
+          },
+          "destructive": {
+            "type": "boolean"
+          },
+          "idempotent": {
+            "type": "boolean"
+          },
+          "resource_bindings": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "pointer",
+                "resource_type",
+                "permission"
+              ],
+              "properties": {
+                "pointer": {
+                  "type": "string",
+                  "pattern": "^/"
+                },
+                "resource_type": {
+                  "enum": [
+                    "workspace_path",
+                    "uri",
+                    "opaque"
+                  ]
+                },
+                "permission": {
+                  "enum": [
+                    "read",
+                    "write",
+                    "delete",
+                    "invoke"
+                  ]
+                }
+              }
+            }
+          },
+          "transaction_required": {
+            "type": "boolean"
+          },
+          "rollback_required": {
+            "type": "boolean"
+          },
+          "max_arguments_bytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "required_host_checks": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+            }
+          },
+          "decision_mode": {
+            "enum": [
+              "allow",
+              "review_required"
+            ]
+          }
+        }
+      }
+    },
+    "production_runtime_ready": {
+      "const": false
+    },
+    "profile_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "bundle_id": "ainir.evidence.bundle.82009e9014078c4b3793",
+  "bundle_sha256": "sha256:82009e9014078c4b3793cc743a19ae08e1e22ae6806feaa026b6310c0e5894d3",
+  "kind": "AiNIREvidenceBundle",
+  "production_runtime_ready": false,
+  "provider_id": "provider.ainir.fixture",
+  "provider_version": "1.0",
+  "records": [
+    {
+      "claim_scope": {
+        "claim_ids": [
+          "claim.create_user_uses_outbox"
+        ],
+        "claim_statement_sha256": "sha256:c8fbaad5afbbe0aeb7322f1f2a68e0f9bac8bc7bd54683ac96e34629fe959504",
+        "module_id": "demo.create_user_outbox_safe",
+        "workflow": "CreateUser"
+      },
+      "evidence_id": "evidence.ainir.fixture.safe-outbox",
+      "evidence_kind": "verifier_report",
+      "integrity": {
+        "algorithm": "canonical_json_sha256",
+        "record_sha256": "sha256:a078249ae82de123dccf1ed2e5a51336919409ebbf6d9e33c69dacaa886db918"
+      },
+      "issuer": {
+        "id": "issuer.ainir.offline-verifier",
+        "kind": "verifier"
+      },
+      "kind": "AiNIREvidenceRecord",
+      "policy_version": "policy.ainir.fixture.v1",
+      "producer_kind": "verifier",
+      "production_runtime_ready": false,
+      "provenance": {
+        "provider_id": "provider.ainir.fixture",
+        "provider_version": "1.0",
+        "source_kind": "fixture",
+        "source_ref": "fixture://ainir/p5/evidence.ainir.fixture.safe-outbox"
+      },
+      "reliability": {
+        "minimum_required": 0.8,
+        "score": 0.95
+      },
+      "revocation": {
+        "checked_at": "2026-08-09T00:00:00Z",
+        "status": "active"
+      },
+      "subject_binding": {
+        "canonical_draft_sha256": "sha256:1c40cfabf2bfe1228e222d5b00bd189a3f52147f188c5303b0bdbf04bfe90397",
+        "mode": "canonical",
+        "raw_source_sha256": null
+      },
+      "validity": {
+        "valid_from": "2026-08-01T00:00:00Z",
+        "valid_until": "2026-09-01T00:00:00Z"
+      },
+      "version": "ainir.evidence-record.v1"
+    }
+  ],
+  "signature": null,
+  "source_kind": "fixture",
+  "version": "ainir.evidence-bundle.v1"
+}

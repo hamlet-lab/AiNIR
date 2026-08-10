@@ -1,0 +1,1323 @@
+version: pre_v1_phase16_exact_capability_contracts
+name: AiNIR public demo negative conformance corpus
+principle: Provider/model output is untrusted draft evidence, not canonical truth.
+trusted_context:
+  environment: public_demo
+cases:
+- id: empty_draft_invalid
+  expected_status: invalid
+  expect_lowering_refused: true
+  description: Empty YAML must never pass.
+  draft: {}
+- id: list_root_invalid
+  expected_status: invalid
+  expect_lowering_refused: true
+  description: YAML root must be an object.
+  raw_yaml: '- not
+
+    - an
+
+    - object
+
+    '
+- id: fake_checked_evidence_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Draft-internal checked evidence from a model/provider cannot verify
+    a claim.
+  draft:
+    module: demo.negative_conformance
+    workflow: CreateUser
+    task: CreateUserRequest
+    operations:
+    - id: op.db
+      op: db.insert_user
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+    - id: op.outbox
+      op: outbox.insert_welcome_email
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+    claims:
+    - id: claim.fake
+      status: verified
+      evidence:
+      - id: ev.fake
+        kind: verifier_report
+        checked: true
+        reliability: 0.99
+        source: claude
+- id: hidden_http_call_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: An external call operation cannot hide side effects by using an empty
+    effects list.
+  draft:
+    module: demo.negative_conformance
+    workflow: CreateUser
+    task: CreateUserRequest
+    operations:
+    - id: op.db
+      op: db.insert_user
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+    - id: op.outbox
+      op: outbox.insert_welcome_email
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+    - id: op.api
+      op: http.call
+      effects: []
+      capabilities:
+      - cap.http.call
+- id: operation_payment_finalize_production_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Production payment aliases must be classified as real payment risk
+    even without the word real.
+  draft:
+    module: demo.negative_conformance
+    workflow: OrderPayment
+    task: ProcessOrderPaymentWorker
+    operations:
+    - id: op.amount
+      op: payment.validate_amount
+      effects: []
+      capabilities: []
+    - id: op.intent
+      op: payment.create_intent
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+    - id: op.pay
+      op: payment.finalize.production
+      effects: []
+      capabilities: []
+- id: effect_payment_real_variant_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Real payment effect variants with suffixes must not regression miss
+    policy.
+  draft:
+    module: demo.negative_conformance
+    workflow: OrderPayment
+    task: ProcessOrderPaymentWorker
+    operations:
+    - id: op.amount
+      op: payment.validate_amount
+      effects: []
+      capabilities: []
+    - id: op.intent
+      op: payment.create_intent
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+    - id: op.pay
+      op: payment.charge.sandbox
+      effects:
+      - effect.external.payment.charge.real.v2
+      capabilities:
+      - cap.payment.charge.real
+- id: raw_token_variant_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Raw token persistence variants must be blocked.
+  draft:
+    module: demo.negative_conformance
+    workflow: PasswordReset
+    task: PasswordResetRequest
+    operations:
+    - id: op.lookup
+      op: password_reset.lookup_user
+      effects:
+      - effect.storage.db.read
+      capabilities:
+      - cap.db.read
+    - id: op.token
+      op: password_reset.generate_token
+      effects: []
+      capabilities: []
+    - id: op.store
+      op: password_reset.store_token_hash
+      effects:
+      - effect.secret.raw_token.store.v2
+      capabilities:
+      - cap.db.write
+    - id: op.outbox
+      op: password_reset.insert_outbox
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+- id: raw_pii_variant_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Raw PII logging/storage variants must be blocked.
+  draft:
+    module: demo.negative_conformance
+    workflow: PIIExportRequest
+    task: PreparePIIExportWorker
+    operations:
+    - id: op.auth
+      op: pii_export.authorize
+      effects: []
+      capabilities: []
+    - id: op.read
+      op: pii_export.read_bundle
+      effects:
+      - effect.privacy.pii.read
+      capabilities:
+      - cap.pii.read
+    - id: op.log
+      op: pii_export.log_raw_pii
+      effects:
+      - effect.privacy.pii.raw_log.v2
+      capabilities:
+      - cap.audit.write
+    - id: op.encrypt
+      op: pii_export.encrypt_package
+      effects:
+      - effect.crypto.encrypt
+      capabilities:
+      - cap.crypto.encrypt
+- id: account_delete_permanent_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Permanent account deletion variants are destructive and must be blocked.
+  draft:
+    module: demo.negative_conformance
+    workflow: AccountDeletion
+    task: ProcessAccountDeletionWorker
+    operations:
+    - id: op.auth
+      op: account_deletion.authorize
+      effects: []
+      capabilities: []
+    - id: op.reauth
+      op: account_deletion.reauth
+      effects: []
+      capabilities: []
+    - id: op.grace
+      op: account_deletion.grace_period_check
+      effects: []
+      capabilities: []
+    - id: op.legal
+      op: account_deletion.legal_hold_check
+      effects: []
+      capabilities: []
+    - id: op.approval
+      op: account_deletion.human_approval
+      effects: []
+      capabilities: []
+    - id: op.delete
+      op: account.delete.permanent
+      effects: []
+      capabilities:
+      - cap.account.delete
+- id: semantic_empty_order_payment_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Known workflows cannot pass with no meaningful registered semantic
+    roles.
+  draft:
+    module: demo.negative_conformance
+    workflow: OrderPayment
+    task: ProcessOrderPaymentWorker
+    operations:
+    - id: op.noop
+      op: payment.noop
+      effects: []
+      capabilities: []
+- id: sandbox_payment_without_idempotency_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Sandbox/mock payment operations still need idempotency metadata in
+    the public demo.
+  draft:
+    module: demo.negative_conformance
+    workflow: OrderPayment
+    task: ProcessOrderPaymentWorker
+    operations:
+    - id: op.amount
+      op: payment.validate_amount
+      effects: []
+      capabilities: []
+    - id: op.intent
+      op: payment.create_intent
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+    - id: op.pay
+      op: payment.charge.sandbox
+      effects:
+      - effect.external.payment.charge.sandbox
+      capabilities:
+      - cap.payment.charge.sandbox
+- id: environment_spoof_real_email_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Draft-declared production environment cannot override trusted test-like
+    context.
+  draft:
+    module: demo.negative_conformance
+    workflow: CreateUser
+    task: CreateUserRequest
+    environment: production
+    operations:
+    - id: op.db
+      op: db.insert_user
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+    - id: op.outbox
+      op: outbox.insert_welcome_email
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+    - id: op.email
+      op: email.send.real
+      effects:
+      - effect.external.notification.email.real
+      capabilities:
+      - cap.email.send
+- id: comment_injection_invalid
+  expected_status: invalid
+  expect_lowering_refused: true
+  description: Comment-breaking / code-injection characters in operation IDs must
+    be rejected by Strict Draft AST.
+  draft:
+    module: demo.negative_conformance
+    workflow: CreateUser
+    task: CreateUserRequest
+    operations:
+    - id: op.db
+      op: db.insert_user
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+    - id: op.bad*/console.log(1)/*
+      op: data.normalize_email
+      effects: []
+      capabilities: []
+- id: safe_create_user_outbox_passes
+  expected_status: passed
+  expect_lowering_refused: false
+  description: The safe outbox example remains the positive control.
+  draft_ref: examples/create_user_outbox_safe/draft.yaml
+- id: create_user_transaction_missing
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: CreateUser must bind user insert and outbox write to a transaction
+    contract.
+  draft:
+    module: demo.negative_conformance_tx
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    policies: &id001
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    - id: policy.user_email_unique
+    operations: &id002
+    - &id003
+      id: op.normalize
+      op: data.normalize_email
+      effects: []
+    - &id004
+      id: op.check
+      op: db.exists_user_by_email
+      effects:
+      - effect.storage.db.read
+      capabilities:
+      - cap.db.user.read
+    - &id005
+      id: op.insert_user
+      op: db.insert_user
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.user.write
+      policies:
+      - policy.user_email_unique
+    - &id006
+      id: op.outbox
+      op: outbox.insert_welcome_email_requested
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+    return: state
+- id: create_user_transaction_mode_missing
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Transaction contracts must declare an atomic host-enforced mode.
+  draft:
+    module: demo.negative_conformance_tx
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    policies: *id001
+    operations: *id002
+    return: state
+    transaction:
+      id: tx.create_user
+      includes:
+      - op.insert_user
+      - op.outbox
+- id: create_user_transaction_non_contiguous
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Transaction includes must be a contiguous segment of task operations.
+  draft:
+    module: demo.negative_conformance_tx
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    policies: *id001
+    operations:
+    - *id003
+    - *id004
+    - *id005
+    - id: op.other
+      op: data.normalize_email
+      effects: []
+    - *id006
+    return: state
+    transaction:
+      id: tx.create_user
+      mode: atomic
+      includes:
+      - op.insert_user
+      - op.outbox
+- id: create_user_transaction_role_order_violation
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: User insert must occur before the outbox event inside the transaction
+    contract.
+  draft:
+    module: demo.negative_conformance_tx
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    policies: *id001
+    operations:
+    - *id003
+    - *id004
+    - *id006
+    - *id005
+    return: state
+    transaction:
+      id: tx.create_user
+      mode: atomic
+      includes:
+      - op.outbox
+      - op.insert_user
+- id: payment_finalize_production_disguised_as_sandbox_effect
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Production-like financial operation alias cannot be disguised with
+    a sandbox effect.
+  draft:
+    module: demo.negative_conformance
+    workflow: OrderPayment
+    task: ProcessOrderPaymentWorker
+    input_type: PaymentIntentInput
+    output_type: PaymentResult
+    return: state
+    policies:
+    - id: policy.no_real_payment_in_beta
+    - id: policy.payment_idempotency_required
+    operations:
+    - id: op.auth
+      op: auth.check_order_payment
+      effects:
+      - effect.auth.authorization.check
+      capabilities:
+      - cap.auth.check
+    - id: op.amount
+      op: payment.validate_amount
+      effects:
+      - effect.payment.validate.Amount
+      capabilities:
+      - cap.payment.validate
+    - id: op.intent
+      op: db.insert_payment_intent
+      effects:
+      - effect.storage.payment_intent.write
+      capabilities:
+      - cap.db.write
+    - id: op.pay
+      op: payment.finalize.production
+      effects:
+      - effect.external.payment.charge.sandbox
+      capabilities:
+      - cap.payment.charge.sandbox
+      policies:
+      - policy.payment_idempotency_required
+- id: raw_token_operation_role_disguised_as_hash_effect
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: A raw-token persistence operation role cannot be disguised with a safe-looking
+    hash effect.
+  draft:
+    module: demo.negative_conformance
+    workflow: PasswordReset
+    task: PasswordResetRequest
+    input_type: PasswordResetInput
+    output_type: AcceptedResponse
+    return: state
+    policies:
+    - id: policy.no_user_enumeration
+    operations:
+    - id: op.norm
+      op: data.normalize_email
+      effects: []
+    - id: op.lookup
+      op: db.find_user_for_password_reset
+      effects:
+      - effect.storage.db.read
+      capabilities:
+      - cap.db.read
+    - id: op.raw
+      op: db.store_raw_reset_token
+      effects:
+      - effect.secret.token.hash
+      capabilities:
+      - cap.secret.hash
+    - id: op.policy
+      op: policy.enforce_no_user_enumeration
+      effects: []
+    - id: op.out
+      op: outbox.insert_password_reset_requested
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+- id: registered_operation_extra_unknown_effect_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: A registered operation cannot declare an effect outside its operation
+    spec contract.
+  draft:
+    module: demo.negative_conformance
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    return: state
+    policies:
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    - id: policy.user_email_unique
+    operations:
+    - id: op.normalize
+      op: data.normalize_email
+      effects:
+      - effect.file.write
+      capabilities:
+      - cap.file.write
+    - id: op.find
+      op: db.exists_user_by_email
+      effects:
+      - effect.storage.db.read
+      capabilities:
+      - cap.db.read
+    - id: op.insert
+      op: db.insert_user
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+      policies:
+      - policy.user_email_unique
+    - id: op.out
+      op: outbox.insert_welcome_email_requested
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+    transaction:
+      id: tx.create_user
+      mode: atomic
+      includes:
+      - op.insert
+      - op.out
+      rollback_on:
+      - failure
+- id: create_user_missing_normalize_duplicate_transaction_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: CreateUser must not pass with only user insert plus outbox; semantic
+    roles and transaction policy are required.
+  draft:
+    module: demo.negative_conformance
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    return: state
+    policies:
+    - id: policy.no_direct_email_in_create_user
+    operations:
+    - id: op.insert
+      op: db.insert_user
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+    - id: op.out
+      op: outbox.insert_welcome_email_requested
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+- id: newsletter_policy_only_consent_does_not_satisfy_role
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Policy presence does not satisfy the consent enforcement semantic role.
+  draft:
+    module: demo.negative_conformance
+    workflow: NewsletterSignup
+    task: NewsletterSignupRequest
+    input_type: NewsletterSignupInput
+    output_type: AcceptedResponse
+    return: state
+    policies:
+    - id: policy.no_marketing_without_consent
+    operations:
+    - id: op.insert
+      op: db.insert_subscriber
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+    - id: op.out
+      op: outbox.insert_double_opt_in
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+- id: order_payment_missing_authorization_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: OrderPayment requires authorization in addition to amount validation
+    and payment intent creation.
+  draft:
+    module: demo.negative_conformance
+    workflow: OrderPayment
+    task: ProcessOrderPaymentWorker
+    input_type: PaymentIntentInput
+    output_type: PaymentResult
+    return: state
+    policies:
+    - id: policy.no_real_payment_in_beta
+    - id: policy.payment_idempotency_required
+    operations:
+    - id: op.amount
+      op: payment.validate_amount
+      effects:
+      - effect.payment.validate.Amount
+      capabilities:
+      - cap.payment.validate
+    - id: op.intent
+      op: db.insert_payment_intent
+      effects:
+      - effect.storage.payment_intent.write
+      capabilities:
+      - cap.db.write
+- id: password_reset_missing_no_user_enumeration_behavior_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: PasswordReset requires no-user-enumeration behavior and user lookup/generic
+    acceptance roles.
+  draft:
+    module: demo.negative_conformance
+    workflow: PasswordReset
+    task: PasswordResetRequest
+    input_type: PasswordResetInput
+    output_type: AcceptedResponse
+    return: state
+    policies:
+    - id: policy.no_user_enumeration
+    operations:
+    - id: op.hash
+      op: secret.hash_password_reset_token
+      effects:
+      - effect.secret.token.hash
+      capabilities:
+      - cap.secret.hash
+    - id: op.out
+      op: outbox.insert_password_reset_requested
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+- id: extra_capability_on_pure_operation_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Capabilities outside an operation spec are refused to preserve least
+    privilege.
+  draft:
+    module: demo.extra_capability_fixture
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    return: state
+    policies: &id007
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    - id: policy.user_email_unique
+    transaction: &id008
+      id: tx.create_user
+      mode: atomic
+      includes:
+      - op.insert_user
+      - op.outbox
+      rollback_on:
+      - failure
+    operations:
+    - id: op.normalize_email
+      op: data.normalize_email
+      effects: []
+      capabilities:
+      - cap.payment.charge.real
+    - id: op.find
+      op: db.exists_user_by_email
+      effects:
+      - effect.storage.db.read
+      capabilities:
+      - cap.db.read
+    - id: op.insert_user
+      op: db.insert_user
+      effects: &id009
+      - effect.storage.db.write
+      capabilities: &id010
+      - cap.db.write
+      policies: &id011
+      - policy.user_email_unique
+    - id: op.outbox
+      op: outbox.insert_welcome_email_requested
+      effects: &id012
+      - effect.storage.outbox.write
+      capabilities: &id013
+      - cap.outbox.write
+- id: extra_capability_on_db_read_blocked
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: Extra capabilities outside allowed prefixes are refused even when required
+    capabilities are present.
+  draft:
+    module: demo.extra_capability_db_read_fixture
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    return: state
+    policies: *id007
+    transaction: *id008
+    operations:
+    - id: op.normalize_email
+      op: data.normalize_email
+      effects: []
+    - id: op.find
+      op: db.exists_user_by_email
+      effects:
+      - effect.storage.db.read
+      capabilities:
+      - cap.db.read
+      - cap.admin.root
+    - id: op.insert_user
+      op: db.insert_user
+      effects: *id009
+      capabilities: *id010
+      policies: *id011
+    - id: op.outbox
+      op: outbox.insert_welcome_email_requested
+      effects: *id012
+      capabilities: *id013
+- id: exact_capability_refuses_excessive_db_scope
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: A registered read operation must not accept unrelated or excessive
+    capability markers.
+  draft:
+    module: demo.negative_conformance
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    policies:
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    transaction:
+      id: tx.create_user
+      includes:
+      - op.insert_user
+      - op.outbox
+      mode: atomic
+    operations:
+    - id: op.normalize
+      op: data.normalize_email
+      effects: []
+    - id: op.lookup
+      op: db.exists_user_by_email
+      effects:
+      - effect.storage.db.read
+      capabilities:
+      - cap.db.delete.everything
+    - id: op.insert_user
+      op: db.insert_user
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.user.write
+      policies:
+      - policy.user_email_unique
+    - id: op.outbox
+      op: outbox.insert_welcome_email_requested
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+      policies:
+      - policy.transactional_outbox_required
+- id: exact_capability_requires_allowed_marker
+  expected_status: blocked
+  expect_lowering_refused: true
+  description: A registered operation with capability requirements must not pass with
+    an empty capability list.
+  draft:
+    module: demo.negative_conformance
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    policies:
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    transaction:
+      id: tx.create_user
+      includes:
+      - op.insert_user
+      - op.outbox
+      mode: atomic
+    operations:
+    - id: op.normalize
+      op: data.normalize_email
+      effects: []
+    - id: op.lookup
+      op: db.exists_user_by_email
+      effects:
+      - effect.storage.db.read
+      capabilities: []
+    - id: op.insert_user
+      op: db.insert_user
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.user.write
+      policies:
+      - policy.user_email_unique
+    - id: op.outbox
+      op: outbox.insert_welcome_email_requested
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+      policies:
+      - policy.transactional_outbox_required
+- id: unknown_transaction_field_invalid
+  expected_status: invalid
+  expect_lowering_refused: true
+  description: Transaction bindings must not carry hidden unregistered semantics.
+  draft:
+    module: demo.create_user_unknown_transaction_field
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    return: state
+    policies:
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    - id: policy.user_email_unique
+    transaction:
+      id: tx.create_user
+      mode: atomic
+      includes:
+      - op.insert_user
+      - op.outbox
+      hidden_call:
+        url: https://example.invalid
+    operations:
+    - id: op.normalize
+      op: data.normalize_email
+      effects: []
+    - id: op.lookup
+      op: db.exists_user_by_email
+      effects:
+      - effect.storage.db.read
+      capabilities:
+      - cap.db.read
+    - id: op.insert_user
+      op: db.insert_user
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+      policies:
+      - policy.user_email_unique
+    - id: op.outbox
+      op: outbox.insert_welcome_email_requested
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+- id: unresolved_ambiguity_must_not_lower
+  expected_status: passed
+  expect_lowering_refused: true
+  description: A non-executable draft with unresolved ambiguity may verify, but it
+    must not lower.
+  draft:
+    module: demo.create_user_unresolved_ambiguity
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    return: state
+    executable: false
+    policies:
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    - id: policy.user_email_unique
+    transaction:
+      id: tx.create_user
+      mode: atomic
+      includes:
+      - op.insert_user
+      - op.outbox
+    ambiguity:
+      status: requires_clarification
+      unresolved_ambiguities:
+      - slot: x
+        question: Clarify x?
+    operations:
+    - id: op.normalize
+      op: data.normalize_email
+      effects: []
+    - id: op.lookup
+      op: db.exists_user_by_email
+      effects:
+      - effect.storage.db.read
+      capabilities:
+      - cap.db.read
+    - id: op.insert_user
+      op: db.insert_user
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+      policies:
+      - policy.user_email_unique
+    - id: op.outbox
+      op: outbox.insert_welcome_email_requested
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+- id: unknown_unresolved_ambiguity_field_invalid
+  expected_status: invalid
+  expect_lowering_refused: true
+  description: Unresolved ambiguity items must use the strict public-demo ambiguity
+    contract.
+  draft:
+    module: demo.create_user_unknown_ambiguity_field
+    workflow: CreateUser
+    task: CreateUserRequest
+    input_type: CreateUserInput
+    output_type: CreateUserResult
+    return: state
+    policies:
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    - id: policy.user_email_unique
+    transaction:
+      id: tx.create_user
+      mode: atomic
+      includes:
+      - op.insert_user
+      - op.outbox
+    ambiguity:
+      status: requires_clarification
+      unresolved_ambiguities:
+      - slot: x
+        hidden_hint: do not expose
+    operations:
+    - id: op.normalize
+      op: data.normalize_email
+      effects: []
+    - id: op.lookup
+      op: db.exists_user_by_email
+      effects:
+      - effect.storage.db.read
+      capabilities:
+      - cap.db.read
+    - id: op.insert_user
+      op: db.insert_user
+      effects:
+      - effect.storage.db.write
+      capabilities:
+      - cap.db.write
+      policies:
+      - policy.user_email_unique
+    - id: op.outbox
+      op: outbox.insert_welcome_email_requested
+      effects:
+      - effect.storage.outbox.write
+      capabilities:
+      - cap.outbox.write
+- id: lowering_unallowed_return_expr_refused
+  expected_status: passed
+  expect_lowering_refused: true
+  description: Trust Gate/lowering gate must refuse unallowed return expressions before
+    lowerer runtime refusal.
+  draft:
+    claims:
+    - id: claim.create_user_uses_outbox
+      statement: CreateUser inserts a WelcomeEmailRequested outbox event instead of
+        sending real email directly.
+      status: hypothesized
+    environment: staging
+    executable: true
+    input_type: CreateUserInput
+    module: demo.nc_unallowed_return
+    operations:
+    - effects: []
+      id: op.normalize_email
+      op: data.normalize_email
+    - capabilities:
+      - cap.db.user.read
+      effects:
+      - effect.storage.db.read
+      id: op.check_duplicate
+      op: db.exists_user_by_email
+    - capabilities:
+      - cap.db.user.write
+      effects:
+      - effect.storage.db.write
+      id: op.insert_user
+      op: db.insert_user
+      policies:
+      - policy.user_email_unique
+    - capabilities:
+      - cap.outbox.write
+      effects:
+      - effect.storage.outbox.write
+      id: op.insert_outbox_event
+      op: outbox.insert_welcome_email_requested
+      policies:
+      - policy.transactional_outbox_required
+    output_type: CreateUserResult
+    policies:
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    return: process.exit(1)
+    task: CreateUserRequest
+    transaction:
+      id: tx.create_user
+      includes:
+      - op.insert_user
+      - op.insert_outbox_event
+      mode: atomic
+      rollback_on:
+      - failure.db_unavailable
+      - failure.duplicate_email
+    workflow: CreateUser
+- id: lowering_unallowed_input_type_refused
+  expected_status: passed
+  expect_lowering_refused: true
+  description: Trust Gate/lowering gate must refuse input types outside the public
+    demo allowlist.
+  draft:
+    claims:
+    - id: claim.create_user_uses_outbox
+      statement: CreateUser inserts a WelcomeEmailRequested outbox event instead of
+        sending real email directly.
+      status: hypothesized
+    environment: staging
+    executable: true
+    input_type: EvilType
+    module: demo.nc_unallowed_input_type
+    operations:
+    - effects: []
+      id: op.normalize_email
+      op: data.normalize_email
+    - capabilities:
+      - cap.db.user.read
+      effects:
+      - effect.storage.db.read
+      id: op.check_duplicate
+      op: db.exists_user_by_email
+    - capabilities:
+      - cap.db.user.write
+      effects:
+      - effect.storage.db.write
+      id: op.insert_user
+      op: db.insert_user
+      policies:
+      - policy.user_email_unique
+    - capabilities:
+      - cap.outbox.write
+      effects:
+      - effect.storage.outbox.write
+      id: op.insert_outbox_event
+      op: outbox.insert_welcome_email_requested
+      policies:
+      - policy.transactional_outbox_required
+    output_type: CreateUserResult
+    policies:
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    return: state
+    task: CreateUserRequest
+    transaction:
+      id: tx.create_user
+      includes:
+      - op.insert_user
+      - op.insert_outbox_event
+      mode: atomic
+      rollback_on:
+      - failure.db_unavailable
+      - failure.duplicate_email
+    workflow: CreateUser
+- id: evidence_checked_status_invalid
+  expected_status: invalid
+  expect_lowering_refused: true
+  description: Trust-looking claim statuses are not accepted as self-attested substitutes
+    for ledger-bound evidence.
+  draft:
+    claims:
+    - id: claim.self_checked
+      status: evidence_checked
+      statement: Model-authored evidence_checked status must not be accepted.
+    environment: staging
+    executable: true
+    input_type: CreateUserInput
+    module: demo.nc_evidence_checked
+    operations:
+    - effects: []
+      id: op.normalize_email
+      op: data.normalize_email
+    - capabilities:
+      - cap.db.user.read
+      effects:
+      - effect.storage.db.read
+      id: op.check_duplicate
+      op: db.exists_user_by_email
+    - capabilities:
+      - cap.db.user.write
+      effects:
+      - effect.storage.db.write
+      id: op.insert_user
+      op: db.insert_user
+      policies:
+      - policy.user_email_unique
+    - capabilities:
+      - cap.outbox.write
+      effects:
+      - effect.storage.outbox.write
+      id: op.insert_outbox_event
+      op: outbox.insert_welcome_email_requested
+      policies:
+      - policy.transactional_outbox_required
+    output_type: CreateUserResult
+    policies:
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    return: state
+    task: CreateUserRequest
+    transaction:
+      id: tx.create_user
+      includes:
+      - op.insert_user
+      - op.insert_outbox_event
+      mode: atomic
+      rollback_on:
+      - failure.db_unavailable
+      - failure.duplicate_email
+    workflow: CreateUser
+- id: executable_false_must_not_lower
+  expected_status: passed
+  expect_lowering_refused: true
+  description: A draft that declares executable=false may verify as non-executable
+    metadata, but it must not lower.
+  draft:
+    claims:
+    - id: claim.create_user_uses_outbox
+      statement: CreateUser inserts a WelcomeEmailRequested outbox event instead of
+        sending real email directly.
+      status: hypothesized
+    environment: staging
+    executable: false
+    input_type: CreateUserInput
+    module: demo.nc_executable_false
+    operations:
+    - effects: []
+      id: op.normalize_email
+      op: data.normalize_email
+    - capabilities:
+      - cap.db.user.read
+      effects:
+      - effect.storage.db.read
+      id: op.check_duplicate
+      op: db.exists_user_by_email
+    - capabilities:
+      - cap.db.user.write
+      effects:
+      - effect.storage.db.write
+      id: op.insert_user
+      op: db.insert_user
+      policies:
+      - policy.user_email_unique
+    - capabilities:
+      - cap.outbox.write
+      effects:
+      - effect.storage.outbox.write
+      id: op.insert_outbox_event
+      op: outbox.insert_welcome_email_requested
+      policies:
+      - policy.transactional_outbox_required
+    output_type: CreateUserResult
+    policies:
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    return: state
+    task: CreateUserRequest
+    transaction:
+      id: tx.create_user
+      includes:
+      - op.insert_user
+      - op.insert_outbox_event
+      mode: atomic
+      rollback_on:
+      - failure.db_unavailable
+      - failure.duplicate_email
+    workflow: CreateUser
+- id: lowering_unallowed_output_type_refused
+  expected_status: passed
+  expect_lowering_refused: true
+  description: Trust Gate/lowering gate must refuse output types outside the public
+    demo allowlist.
+  draft:
+    claims:
+    - id: claim.create_user_uses_outbox
+      statement: CreateUser inserts a WelcomeEmailRequested outbox event instead of
+        sending real email directly.
+      status: hypothesized
+    environment: staging
+    executable: true
+    input_type: CreateUserInput
+    module: demo.nc_unallowed_output_type
+    operations:
+    - effects: []
+      id: op.normalize_email
+      op: data.normalize_email
+    - capabilities:
+      - cap.db.user.read
+      effects:
+      - effect.storage.db.read
+      id: op.check_duplicate
+      op: db.exists_user_by_email
+    - capabilities:
+      - cap.db.user.write
+      effects:
+      - effect.storage.db.write
+      id: op.insert_user
+      op: db.insert_user
+      policies:
+      - policy.user_email_unique
+    - capabilities:
+      - cap.outbox.write
+      effects:
+      - effect.storage.outbox.write
+      id: op.insert_outbox_event
+      op: outbox.insert_welcome_email_requested
+      policies:
+      - policy.transactional_outbox_required
+    output_type: EvilType
+    policies:
+    - id: policy.no_direct_email_in_create_user
+    - id: policy.transactional_outbox_required
+    return: state
+    task: CreateUserRequest
+    transaction:
+      id: tx.create_user
+      includes:
+      - op.insert_user
+      - op.insert_outbox_event
+      mode: atomic
+      rollback_on:
+      - failure.db_unavailable
+      - failure.duplicate_email
+    workflow: CreateUser
+deterministic_robustness_profiles:
+- id: safety_critical_effect_suffix_variants
+  count: 12
+  expected_status: blocked
+  base_workflow: OrderPayment
+  base_task: ProcessOrderPaymentWorker
+  effect_stems:
+  - effect.external.payment.charge.real
+  - effect.secret.raw_token.store
+  - effect.privacy.pii.raw_log
+  - effect.destructive.account.hard_delete
+  suffixes:
+  - .v2
+  - .production
+  - _real
+  - .permanent
+- id: provider_source_evidence_variants
+  count: 8
+  expected_status: blocked
+  sources:
+  - model
+  - llm
+  - provider_output
+  - claude
+  - gpt4
+  - gemini
+  - codex
+  - openai
+- id: hidden_operation_effectless_variants
+  count: 10
+  expected_status: blocked
+  operations:
+  - payment.charge.real
+  - payment.finalize.production
+  - email.send.real
+  - email.marketing.real
+  - http.call
+  - api.call
+  - external.provider.call
+  - account.delete.permanent
+  - token.store.raw
+  - pii.log.raw

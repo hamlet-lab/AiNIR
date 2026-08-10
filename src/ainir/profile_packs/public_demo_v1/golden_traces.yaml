@@ -1,0 +1,124 @@
+pack_id: ainir-public-demo-golden-traces
+phase: pre_v1_phase20
+version: 0.2.0
+purpose: 'Deterministic replay of the public demo pipeline: draft -> strict AST ->
+  normalize -> verify -> lower/refuse -> TrustReceipt issue -> TrustReceipt replay.'
+traces:
+- id: GT-PUB-01-safe-create-user-outbox
+  description: Safe CreateUser outbox draft verifies and lowers with host enforcement
+    hooks.
+  draft_ref: examples/create_user_outbox_safe/draft.yaml
+  expected_status: passed
+  expect_lowering: true
+  expect_enforcement_hooks: true
+  min_critical_count: 0
+  expect_trust_receipt_replay: true
+- id: GT-PUB-02-password-reset-raw-token-blocked
+  description: PasswordReset raw token persistence is blocked and cannot be lowered.
+  draft_ref: examples/password_reset_raw_token_blocked/draft.yaml
+  expected_status: blocked
+  expect_lowering: false
+  min_critical_count: 1
+  expect_trust_receipt_replay: true
+- id: GT-PUB-03-order-payment-real-payment-blocked
+  description: OrderPayment real payment draft is blocked and cannot be lowered.
+  draft_ref: examples/order_payment_real_payment_blocked/draft.yaml
+  expected_status: blocked
+  expect_lowering: false
+  min_critical_count: 1
+  expect_trust_receipt_replay: true
+- id: GT-PUB-04-pii-export-raw-pii-blocked
+  description: PIIExport unprotected PII marker logging/storage is blocked and cannot
+    be lowered.
+  draft_ref: examples/pii_export_raw_pii_blocked/draft.yaml
+  expected_status: blocked
+  expect_lowering: false
+  min_critical_count: 1
+  expect_trust_receipt_replay: true
+- id: GT-PUB-05-account-deletion-hard-delete-blocked
+  description: AccountDeletion irreversible deletion marker is blocked and cannot
+    be lowered.
+  draft_ref: examples/account_deletion_hard_delete_blocked/draft.yaml
+  expected_status: blocked
+  expect_lowering: false
+  min_critical_count: 1
+  expect_trust_receipt_replay: true
+- id: GT-PUB-06-environment-spoof-real-email-blocked
+  description: Draft-declared production environment cannot override trusted test/public
+    context.
+  expected_status: blocked
+  expect_lowering: false
+  min_critical_count: 1
+  raw_yaml: "module: demo.negative_conformance.env_spoof\nworkflow: CreateUser\ntask:\
+    \ CreateUserRequest\nenvironment: production\ninput_type: CreateUserInput\noutput_type:\
+    \ CreateUserResult\noperations:\n  - id: op.db\n    op: db.insert_user\n    effects:\
+    \ [effect.storage.db.write]\n    capabilities: [cap.db.write]\n  - id: op.outbox\n\
+    \    op: outbox.insert_welcome_email\n    effects: [effect.storage.outbox.write]\n\
+    \    capabilities: [cap.outbox.write]\n  - id: op.email\n    op: email.send.real\n\
+    \    effects: [effect.external.notification.email.real]\n    capabilities: [cap.email.send]\n\
+    return: state\n"
+  expect_trust_receipt_replay: true
+- id: GT-PUB-07-fake-checked-evidence-blocked
+  description: Model-supplied checked evidence cannot verify a claim unless ledger-bound.
+  expected_status: blocked
+  expect_lowering: false
+  min_critical_count: 1
+  raw_yaml: "module: demo.negative_conformance.fake_evidence\nworkflow: CreateUser\n\
+    task: CreateUserRequest\ninput_type: CreateUserInput\noutput_type: CreateUserResult\n\
+    operations:\n  - id: op.db\n    op: db.insert_user\n    effects: [effect.storage.db.write]\n\
+    \    capabilities: [cap.db.write]\n  - id: op.outbox\n    op: outbox.insert_welcome_email\n\
+    \    effects: [effect.storage.outbox.write]\n    capabilities: [cap.outbox.write]\n\
+    claims:\n  - id: claim.fake\n    status: verified\n    evidence:\n      - id:\
+    \ ev.fake\n        kind: verifier_report\n        checked: true\n        source:\
+    \ claude\n        reliability: 0.99\nreturn: state\n"
+  expect_trust_receipt_replay: true
+- id: GT-PUB-08-hidden-http-call-blocked
+  description: 'Safety-critical external operation names cannot hide with effects:
+    [].'
+  expected_status: blocked
+  expect_lowering: false
+  min_critical_count: 1
+  raw_yaml: "module: demo.negative_conformance.hidden_http\nworkflow: CreateUser\n\
+    task: CreateUserRequest\ninput_type: CreateUserInput\noutput_type: CreateUserResult\n\
+    operations:\n  - id: op.db\n    op: db.insert_user\n    effects: [effect.storage.db.write]\n\
+    \    capabilities: [cap.db.write]\n  - id: op.outbox\n    op: outbox.insert_welcome_email\n\
+    \    effects: [effect.storage.outbox.write]\n    capabilities: [cap.outbox.write]\n\
+    \  - id: op.http\n    op: http.call\n    effects: []\n    capabilities: []\nreturn:\
+    \ state\n"
+  expect_trust_receipt_replay: true
+- id: GT-PUB-09-transaction-missing-blocked
+  description: CreateUser without transaction binding is not verifier-ready.
+  expected_status: blocked
+  expect_lowering: false
+  min_critical_count: 1
+  raw_yaml: "module: demo.negative_conformance.tx_missing\nworkflow: CreateUser\n\
+    task: CreateUserRequest\ninput_type: CreateUserInput\noutput_type: CreateUserResult\n\
+    policies:\n  - id: policy.no_direct_email_in_create_user\n  - id: policy.transactional_outbox_required\n\
+    \  - id: policy.user_email_unique\noperations:\n  - id: op.normalize\n    op:\
+    \ data.normalize_email\n    effects: []\n  - id: op.check\n    op: db.exists_user_by_email\n\
+    \    effects: [effect.storage.db.read]\n    capabilities: [cap.db.user.read]\n\
+    \  - id: op.insert_user\n    op: db.insert_user\n    effects: [effect.storage.db.write]\n\
+    \    capabilities: [cap.db.user.write]\n    policies: [policy.user_email_unique]\n\
+    \  - id: op.outbox\n    op: outbox.insert_welcome_email_requested\n    effects:\
+    \ [effect.storage.outbox.write]\n    capabilities: [cap.outbox.write]\nreturn:\
+    \ state\n"
+  expect_trust_receipt_replay: true
+- id: GT-PUB-10-transaction-noncontiguous-blocked
+  description: Transaction includes must be a contiguous operation segment for host
+    enforcement.
+  expected_status: blocked
+  expect_lowering: false
+  min_critical_count: 1
+  raw_yaml: "module: demo.negative_conformance.tx_noncontiguous\nworkflow: CreateUser\n\
+    task: CreateUserRequest\ninput_type: CreateUserInput\noutput_type: CreateUserResult\n\
+    policies:\n  - id: policy.no_direct_email_in_create_user\n  - id: policy.transactional_outbox_required\n\
+    \  - id: policy.user_email_unique\ntransaction:\n  id: tx.create_user\n  mode:\
+    \ atomic\n  includes: [op.insert_user, op.outbox]\noperations:\n  - id: op.normalize\n\
+    \    op: data.normalize_email\n    effects: []\n  - id: op.check\n    op: db.exists_user_by_email\n\
+    \    effects: [effect.storage.db.read]\n    capabilities: [cap.db.user.read]\n\
+    \  - id: op.insert_user\n    op: db.insert_user\n    effects: [effect.storage.db.write]\n\
+    \    capabilities: [cap.db.user.write]\n    policies: [policy.user_email_unique]\n\
+    \  - id: op.other\n    op: data.normalize_email\n    effects: []\n  - id: op.outbox\n\
+    \    op: outbox.insert_welcome_email_requested\n    effects: [effect.storage.outbox.write]\n\
+    \    capabilities: [cap.outbox.write]\nreturn: state\n"
+  expect_trust_receipt_replay: true

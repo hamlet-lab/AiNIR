@@ -1,0 +1,9 @@
+* @hamlet-lab
+
+/PROTECTED_INVARIANTS.md @hamlet-lab
+/PUBLIC_SCOPE.md @hamlet-lab
+/src/ainir/trust_gate.py @hamlet-lab
+/src/ainir/trust_receipt_store.py @hamlet-lab
+/src/ainir/verified_intent_export.py @hamlet-lab
+/registries/ @hamlet-lab
+/schemas/ @hamlet-lab

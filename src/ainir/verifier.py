@@ -9,14 +9,15 @@ from .draft_ast import parse_draft_ast
 from .execution_context import TrustedExecutionContext
 from .normalizer import normalize_draft
 from .policy_core import evaluate_policy_core
+from .registry_context import DynamicRegistryProxy
 from .safety_registry import get_registry, strict_safe_id
 from .operation_registry import get_operation_registry
 from .evidence_ledger import get_evidence_ledger
 from .transaction_contract import transaction_findings
 
 
-REGISTRY = get_registry()
-OP_REGISTRY = get_operation_registry()
+REGISTRY = DynamicRegistryProxy(get_registry)
+OP_REGISTRY = DynamicRegistryProxy(get_operation_registry)
 _SAFE_STATUS_VALUES = {"hypothesized", "verified", "unverified"}
 
 

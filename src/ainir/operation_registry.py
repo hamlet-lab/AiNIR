@@ -16,6 +16,7 @@ from typing import Any, Mapping
 import yaml
 
 from .core import load_yaml_no_duplicate_keys
+from .registry_context import active_registry_bundle
 
 from .safety_registry import compact, get_registry
 
@@ -257,8 +258,15 @@ class OperationRegistry:
 
 
 @lru_cache(maxsize=1)
-def get_operation_registry() -> OperationRegistry:
+def _default_operation_registry() -> OperationRegistry:
     return OperationRegistry.load()
+
+
+def get_operation_registry() -> OperationRegistry:
+    bundle = active_registry_bundle()
+    if bundle is not None:
+        return bundle.operation_registry
+    return _default_operation_registry()
 
 
 def _profile_forbidden_roles(workflow: str) -> set[str]:

@@ -1,0 +1,678 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AiNIR VerifiedIntentPacket",
+  "description": "AiNIR-owned optional export artifact for future verified-intent consumers. Pre-v1 Phase 25 aligns JSON Schema with the strict runtime validator.",
+  "type": "object",
+  "required": [
+    "kind",
+    "version",
+    "packet_id",
+    "producer",
+    "consumer_profile",
+    "profile_status",
+    "slots"
+  ],
+  "properties": {
+    "kind": {
+      "const": "VerifiedIntentPacket"
+    },
+    "version": {
+      "const": "pre_v1_phase25_defensive_integrity_packet_integrity"
+    },
+    "packet_id": {
+      "type": "string",
+      "pattern": "^ainir\\.verified_intent\\.[a-f0-9]{20}$|^ainir\\.verified_intent\\.fixture\\.[A-Za-z0-9_.-]+$"
+    },
+    "producer": {
+      "const": "AiNIR"
+    },
+    "consumer_profile": {
+      "const": "AIVLConsumerProfile"
+    },
+    "profile_status": {
+      "const": "consumer_profile_contract_only_no_downstream_integration"
+    },
+    "slots": {
+      "type": "object",
+      "required": [
+        "trust",
+        "profile_scope",
+        "evidence_bindings",
+        "effects",
+        "capabilities",
+        "intent",
+        "grounding_status",
+        "groundings",
+        "ambiguity",
+        "operation_constraints",
+        "required_contracts",
+        "security_classifications",
+        "receipt_links"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "trust": {
+          "type": "object",
+          "required": [
+            "status",
+            "decision",
+            "blocked_reasons",
+            "trust_gate_status",
+            "lowering_allowed",
+            "handoff_allowed"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "const": "verified"
+            },
+            "decision": {
+              "const": "allow"
+            },
+            "blocked_reasons": {
+              "type": "array",
+              "maxItems": 0
+            },
+            "trust_gate_status": {
+              "const": "passed"
+            },
+            "lowering_allowed": {
+              "const": true
+            },
+            "handoff_allowed": {
+              "const": true
+            }
+          }
+        },
+        "profile_scope": {
+          "type": "object",
+          "required": [
+            "profile",
+            "workflow",
+            "task",
+            "task_family",
+            "supported_workflow"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "profile": {
+              "const": "AIVLConsumerProfile"
+            },
+            "workflow": {
+              "const": "PIIExportRequest"
+            },
+            "task": {
+              "type": "string",
+              "minLength": 1
+            },
+            "task_family": {
+              "const": "pii_export_pipeline"
+            },
+            "supported_workflow": {
+              "const": true
+            }
+          }
+        },
+        "evidence_bindings": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "claim",
+              "evidence_id",
+              "issuer",
+              "status",
+              "ledger_bound"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "claim": {
+                "enum": [
+                  "claim.pii_export_authorized",
+                  "claim.export_authorized"
+                ]
+              },
+              "evidence_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "issuer": {
+                "const": "ainir_evidence_ledger"
+              },
+              "status": {
+                "const": "verified"
+              },
+              "ledger_bound": {
+                "const": true
+              }
+            }
+          },
+          "contains": {
+            "type": "object",
+            "properties": {
+              "claim": {
+                "const": "claim.pii_export_authorized"
+              },
+              "status": {
+                "const": "verified"
+              },
+              "ledger_bound": {
+                "const": true
+              }
+            },
+            "required": [
+              "claim",
+              "status",
+              "ledger_bound"
+            ]
+          }
+        },
+        "effects": {
+          "type": "object",
+          "required": [
+            "consumer_allowed",
+            "consumer_required",
+            "consumer_denied",
+            "ainir_declared",
+            "ainir_implied"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "consumer_allowed": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "AuthorizationCheck",
+                  "Encrypt",
+                  "PIIExport",
+                  "PIIRead",
+                  "WriteExportPackage"
+                ]
+              },
+              "contains": {
+                "const": "PIIExport"
+              }
+            },
+            "consumer_required": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "AuthorizationCheck",
+                  "Encrypt",
+                  "PIIExport",
+                  "PIIRead",
+                  "WriteExportPackage"
+                ]
+              },
+              "contains": {
+                "const": "PIIExport"
+              }
+            },
+            "consumer_denied": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "AccountDelete",
+                  "NetworkAccess",
+                  "PaymentCharge",
+                  "SecretAccess",
+                  "WriteDatabase"
+                ]
+              }
+            },
+            "ainir_declared": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ainir_implied": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "capabilities": {
+          "type": "object",
+          "required": [
+            "consumer_allowed",
+            "consumer_denied",
+            "ainir_declared",
+            "ainir_implied"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "consumer_allowed": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "AuthorizationCheck",
+                  "Encrypt",
+                  "PIIExport",
+                  "PIIRead",
+                  "WriteExportPackage"
+                ]
+              },
+              "contains": {
+                "const": "PIIExport"
+              }
+            },
+            "consumer_denied": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "AccountDelete",
+                  "NetworkAccess",
+                  "PaymentCharge",
+                  "SecretAccess",
+                  "WriteDatabase"
+                ]
+              }
+            },
+            "ainir_declared": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ainir_implied": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "intent": {
+          "type": "object",
+          "required": [
+            "task_intent",
+            "domain",
+            "operation_kind",
+            "natural_language_summary"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "task_intent": {
+              "const": "prepare_authorized_pii_export_package"
+            },
+            "domain": {
+              "const": "privacy_export"
+            },
+            "operation_kind": {
+              "const": "data_pipeline"
+            },
+            "natural_language_summary": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "grounding_status": {
+          "type": "object",
+          "required": [
+            "status",
+            "reason",
+            "required_consumer_checks"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "const": "consumer_must_ground"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required_consumer_checks": {
+              "type": "array",
+              "minItems": 4,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "schema_grounding_required",
+                  "filter_matches",
+                  "projection_matches",
+                  "field_allowlist"
+                ]
+              },
+              "allOf": [
+                {
+                  "contains": {
+                    "const": "schema_grounding_required"
+                  }
+                },
+                {
+                  "contains": {
+                    "const": "filter_matches"
+                  }
+                },
+                {
+                  "contains": {
+                    "const": "projection_matches"
+                  }
+                },
+                {
+                  "contains": {
+                    "const": "field_allowlist"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "groundings": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "ambiguity": {
+          "type": "object",
+          "required": [
+            "status",
+            "unresolved_ambiguities"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "const": "resolved"
+            },
+            "unresolved_ambiguities": {
+              "type": "array",
+              "maxItems": 0
+            }
+          }
+        },
+        "operation_constraints": {
+          "type": "object",
+          "required": [
+            "allowed_operations",
+            "denied_operations",
+            "requires_human_review",
+            "semantic_roles",
+            "canonical_operations"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "allowed_operations": {
+              "type": "array",
+              "minItems": 5,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "authorization_check",
+                  "field_allowlist_check",
+                  "read_pii_fields",
+                  "encrypt_export_package",
+                  "store_export_package"
+                ]
+              }
+            },
+            "denied_operations": {
+              "type": "array",
+              "minItems": 4,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "delete",
+                  "update",
+                  "external_network_send",
+                  "production_financial_effect"
+                ]
+              }
+            },
+            "requires_human_review": {
+              "const": true
+            },
+            "semantic_roles": {
+              "type": "array",
+              "minItems": 6,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "authorization",
+                  "pii_read",
+                  "export_allowlist",
+                  "export_encryption",
+                  "export_package_storage",
+                  "encrypted_or_safe_export"
+                ]
+              }
+            },
+            "canonical_operations": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "operation_id",
+                  "canonical_op",
+                  "semantic_roles",
+                  "effects",
+                  "capabilities"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "operation_id": {
+                    "type": "string"
+                  },
+                  "canonical_op": {
+                    "type": "string"
+                  },
+                  "semantic_roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "effects": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "capabilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required_contracts": {
+          "type": "array",
+          "minItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "schema_grounding_required",
+              "filter_matches",
+              "projection_matches",
+              "pii_export_authorized",
+              "field_allowlist",
+              "encrypted_export_package",
+              "pii_export_boundary_declared"
+            ]
+          },
+          "allOf": [
+            {
+              "contains": {
+                "const": "schema_grounding_required"
+              }
+            },
+            {
+              "contains": {
+                "const": "filter_matches"
+              }
+            },
+            {
+              "contains": {
+                "const": "projection_matches"
+              }
+            },
+            {
+              "contains": {
+                "const": "pii_export_authorized"
+              }
+            },
+            {
+              "contains": {
+                "const": "field_allowlist"
+              }
+            },
+            {
+              "contains": {
+                "const": "encrypted_export_package"
+              }
+            },
+            {
+              "contains": {
+                "const": "pii_export_boundary_declared"
+              }
+            }
+          ]
+        },
+        "security_classifications": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "classification_scope",
+              "classification",
+              "source",
+              "status"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "classification_scope": {
+                "const": "export_payload"
+              },
+              "classification": {
+                "const": "PII"
+              },
+              "source": {
+                "const": "consumer_grounded_export_fields"
+              },
+              "status": {
+                "const": "consumer_must_ground"
+              },
+              "field_path": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "receipt_links": {
+          "type": "object",
+          "required": [
+            "ainir_receipt_id",
+            "draft_hash",
+            "raw_source_sha256",
+            "canonical_draft_sha256",
+            "registry_hash",
+            "registry_snapshot_hash",
+            "verifier_report_hash",
+            "policy_hash",
+            "stable_receipt_projection_hash",
+            "gate_results_hash",
+            "evidence_summary_hash",
+            "trusted_context"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ainir_receipt_id": {
+              "type": "string",
+              "pattern": "^ainir\\.trust\\.receipt\\.(?:[a-f0-9]{20}|fixture(?:\\.[A-Za-z0-9_.:-]+)?|example\\.[A-Za-z0-9_.:-]+)$"
+            },
+            "draft_hash": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "registry_hash": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "verifier_report_hash": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "policy_hash": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "raw_source_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "canonical_draft_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "registry_snapshot_hash": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "stable_receipt_projection_hash": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "gate_results_hash": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "evidence_summary_hash": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "trusted_context": {
+              "type": "object",
+              "required": [
+                "environment",
+                "source",
+                "purpose"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "environment": {
+                  "enum": [
+                    "public_demo",
+                    "ci",
+                    "test"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "purpose": {
+                  "const": "verified_intent_export"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

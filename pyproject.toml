@@ -1,30 +1,30 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ainir-public-demo"
-version = "1.0.0rc1"
+dynamic = ["version"]
 description = "AiNIR v1.0 RC candidate public demo: inspecting AI-generated program semantics before lowering or execution."
 readme = "README.md"
 authors = [{name = "Lee Yoon Kyu"}]
 maintainers = [{name = "Lee Yoon Kyu"}]
 requires-python = ">=3.10"
-license = {text = "Apache-2.0"}
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE", "AUTHORS.md"]
 dependencies = ["PyYAML>=6"]
 
 [project.scripts]
 ainir = "ainir.cli:main"
 
-[project.urls]
-Homepage = "https://github.com/hamlet-lab/ainir"
-Repository = "https://github.com/hamlet-lab/ainir"
-
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-ainir = ["registries/*.yaml"]
+ainir = ["registries/*.yaml", "schemas/*.json", "schemas/*.yaml", "profile_packs/*/*.yaml", "profile_packs/*/examples/*/*.yaml", "mcp_profiles/*/*.yaml", "mcp_profiles/*/descriptors/*.json"]
+
+[tool.setuptools.dynamic]
+version = {attr = "ainir._version.__version__"}
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+dev = ["jsonschema>=4", "pytest>=8", "setuptools>=68", "wheel>=0.43"]

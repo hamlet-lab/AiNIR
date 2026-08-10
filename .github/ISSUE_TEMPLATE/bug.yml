@@ -1,0 +1,23 @@
+name: Bug report
+description: Report a reproducible public AiNIR defect
+title: "[bug] "
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: Reproduction
+      description: Include version/commit, command, minimal sanitized input, expected result, and actual result.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Affected gate or invariant
+      description: Name the rule, gate, receipt/replay check, or protected invariant when known.
+  - type: checkboxes
+    attributes:
+      label: Safety
+      options:
+        - label: I removed credentials and private data.
+          required: true
+        - label: This is not an undisclosed security vulnerability; otherwise I will follow SECURITY.md.
+          required: true

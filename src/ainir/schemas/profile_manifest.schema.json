@@ -1,0 +1,831 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/profile_manifest.schema.json",
+  "title": "AiNIR Profile Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "profile_id",
+    "profile_version",
+    "display_name",
+    "description",
+    "status",
+    "registry_mode",
+    "base_profile",
+    "policies",
+    "coverage",
+    "extensions",
+    "conformance"
+  ],
+  "properties": {
+    "kind": {
+      "const": "AiNIRProfileManifest"
+    },
+    "version": {
+      "const": "ainir.profile-manifest.v1"
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{2,127}$"
+    },
+    "profile_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "bundled"
+      ]
+    },
+    "registry_mode": {
+      "enum": [
+        "packaged",
+        "additive"
+      ]
+    },
+    "base_profile": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "policies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unknown_workflow",
+        "unknown_operation",
+        "unknown_effect",
+        "model_output_is_evidence",
+        "consumer_can_override_trust_gate",
+        "core_executes_actions"
+      ],
+      "properties": {
+        "unknown_workflow": {
+          "const": "refuse"
+        },
+        "unknown_operation": {
+          "const": "refuse"
+        },
+        "unknown_effect": {
+          "const": "refuse"
+        },
+        "model_output_is_evidence": {
+          "const": false
+        },
+        "consumer_can_override_trust_gate": {
+          "const": false
+        },
+        "core_executes_actions": {
+          "const": false
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workflows",
+        "operations",
+        "effects",
+        "capabilities",
+        "evidence_records",
+        "transaction_workflows"
+      ],
+      "properties": {
+        "workflows": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "operations": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "effects": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "effect.auth.authorization.check",
+              "effect.auth.reauthentication.check",
+              "effect.crypto.encrypt",
+              "effect.destructive.account.delete.permanent",
+              "effect.destructive.account.hard_delete",
+              "effect.external.notification.email.mock",
+              "effect.external.notification.email.real",
+              "effect.external.payment.capture.real",
+              "effect.external.payment.charge.mock",
+              "effect.external.payment.charge.real",
+              "effect.external.payment.charge.sandbox",
+              "effect.external.payment.provider_call.real",
+              "effect.payment.validate.Amount",
+              "effect.privacy.pii.raw_log",
+              "effect.privacy.pii.raw_store",
+              "effect.privacy.pii.read",
+              "effect.secret.raw_token.log",
+              "effect.secret.raw_token.store",
+              "effect.storage.db.read",
+              "effect.storage.db.write",
+              "effect.storage.export_package.write",
+              "effect.storage.outbox.write",
+              "effect.storage.payment_intent.write"
+            ]
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": [
+              "cap.auth.check",
+              "cap.auth.reauthentication",
+              "cap.crypto.encrypt",
+              "cap.db.account.read",
+              "cap.db.payment.read",
+              "cap.db.payment.write",
+              "cap.db.read",
+              "cap.db.user.read",
+              "cap.db.user.write",
+              "cap.db.write",
+              "cap.export.storage.write",
+              "cap.outbox.write",
+              "cap.payment.charge.sandbox",
+              "cap.payment.validate",
+              "cap.pii.read",
+              "cap.secret.hash",
+              "cap.secret.seal"
+            ]
+          }
+        },
+        "evidence_records": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "transaction_workflows": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workflows",
+        "operations",
+        "effect_capability_contracts",
+        "effect_aliases",
+        "capabilities",
+        "evidence_records",
+        "role_markers",
+        "allowed_external_effects"
+      ],
+      "properties": {
+        "workflows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "aliases",
+              "semantic_profile"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "aliases": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "semantic_profile": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "required_roles"
+                ],
+                "properties": {
+                  "required_roles": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required_policies": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required_effects": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "effect.auth.authorization.check",
+                        "effect.auth.reauthentication.check",
+                        "effect.crypto.encrypt",
+                        "effect.destructive.account.delete.permanent",
+                        "effect.destructive.account.hard_delete",
+                        "effect.external.notification.email.mock",
+                        "effect.external.notification.email.real",
+                        "effect.external.payment.capture.real",
+                        "effect.external.payment.charge.mock",
+                        "effect.external.payment.charge.real",
+                        "effect.external.payment.charge.sandbox",
+                        "effect.external.payment.provider_call.real",
+                        "effect.payment.validate.Amount",
+                        "effect.privacy.pii.raw_log",
+                        "effect.privacy.pii.raw_store",
+                        "effect.privacy.pii.read",
+                        "effect.secret.raw_token.log",
+                        "effect.secret.raw_token.store",
+                        "effect.storage.db.read",
+                        "effect.storage.db.write",
+                        "effect.storage.export_package.write",
+                        "effect.storage.outbox.write",
+                        "effect.storage.payment_intent.write"
+                      ]
+                    }
+                  },
+                  "forbidden_families": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "forbidden_roles": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required_transaction_roles": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required_transaction_policies": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "transaction_order_roles": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 2,
+                      "maxItems": 2
+                    }
+                  },
+                  "transaction_contract": {
+                    "type": [
+                      "string",
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "semantic_roles",
+              "allowed_workflows"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "aliases": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "trust_level": {
+                "enum": [
+                  "profile_fixture",
+                  null
+                ]
+              },
+              "pure": {
+                "type": "boolean"
+              },
+              "semantic_roles": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "allowed_workflows": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required_effects": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "effect.auth.authorization.check",
+                    "effect.auth.reauthentication.check",
+                    "effect.crypto.encrypt",
+                    "effect.destructive.account.delete.permanent",
+                    "effect.destructive.account.hard_delete",
+                    "effect.external.notification.email.mock",
+                    "effect.external.notification.email.real",
+                    "effect.external.payment.capture.real",
+                    "effect.external.payment.charge.mock",
+                    "effect.external.payment.charge.real",
+                    "effect.external.payment.charge.sandbox",
+                    "effect.external.payment.provider_call.real",
+                    "effect.payment.validate.Amount",
+                    "effect.privacy.pii.raw_log",
+                    "effect.privacy.pii.raw_store",
+                    "effect.privacy.pii.read",
+                    "effect.secret.raw_token.log",
+                    "effect.secret.raw_token.store",
+                    "effect.storage.db.read",
+                    "effect.storage.db.write",
+                    "effect.storage.export_package.write",
+                    "effect.storage.outbox.write",
+                    "effect.storage.payment_intent.write"
+                  ]
+                }
+              },
+              "allowed_effects": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "effect.auth.authorization.check",
+                    "effect.auth.reauthentication.check",
+                    "effect.crypto.encrypt",
+                    "effect.destructive.account.delete.permanent",
+                    "effect.destructive.account.hard_delete",
+                    "effect.external.notification.email.mock",
+                    "effect.external.notification.email.real",
+                    "effect.external.payment.capture.real",
+                    "effect.external.payment.charge.mock",
+                    "effect.external.payment.charge.real",
+                    "effect.external.payment.charge.sandbox",
+                    "effect.external.payment.provider_call.real",
+                    "effect.payment.validate.Amount",
+                    "effect.privacy.pii.raw_log",
+                    "effect.privacy.pii.raw_store",
+                    "effect.privacy.pii.read",
+                    "effect.secret.raw_token.log",
+                    "effect.secret.raw_token.store",
+                    "effect.storage.db.read",
+                    "effect.storage.db.write",
+                    "effect.storage.export_package.write",
+                    "effect.storage.outbox.write",
+                    "effect.storage.payment_intent.write"
+                  ]
+                }
+              },
+              "required_effect_families": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "maxItems": 0
+              },
+              "allowed_effect_families": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "maxItems": 0
+              },
+              "allow_extra_effects": {
+                "const": false
+              },
+              "required_capabilities": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "cap.auth.check",
+                    "cap.auth.reauthentication",
+                    "cap.crypto.encrypt",
+                    "cap.db.account.read",
+                    "cap.db.payment.read",
+                    "cap.db.payment.write",
+                    "cap.db.read",
+                    "cap.db.user.read",
+                    "cap.db.user.write",
+                    "cap.db.write",
+                    "cap.export.storage.write",
+                    "cap.outbox.write",
+                    "cap.payment.charge.sandbox",
+                    "cap.payment.validate",
+                    "cap.pii.read",
+                    "cap.secret.hash",
+                    "cap.secret.seal"
+                  ]
+                }
+              },
+              "allowed_capabilities": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "cap.auth.check",
+                    "cap.auth.reauthentication",
+                    "cap.crypto.encrypt",
+                    "cap.db.account.read",
+                    "cap.db.payment.read",
+                    "cap.db.payment.write",
+                    "cap.db.read",
+                    "cap.db.user.read",
+                    "cap.db.user.write",
+                    "cap.db.write",
+                    "cap.export.storage.write",
+                    "cap.outbox.write",
+                    "cap.payment.charge.sandbox",
+                    "cap.payment.validate",
+                    "cap.pii.read",
+                    "cap.secret.hash",
+                    "cap.secret.seal"
+                  ]
+                }
+              },
+              "required_capability_any": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "cap.auth.check",
+                    "cap.auth.reauthentication",
+                    "cap.crypto.encrypt",
+                    "cap.db.account.read",
+                    "cap.db.payment.read",
+                    "cap.db.payment.write",
+                    "cap.db.read",
+                    "cap.db.user.read",
+                    "cap.db.user.write",
+                    "cap.db.write",
+                    "cap.export.storage.write",
+                    "cap.outbox.write",
+                    "cap.payment.charge.sandbox",
+                    "cap.payment.validate",
+                    "cap.pii.read",
+                    "cap.secret.hash",
+                    "cap.secret.seal"
+                  ]
+                }
+              },
+              "required_capability_prefixes": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "maxItems": 0
+              },
+              "allowed_capability_prefixes": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "maxItems": 0
+              },
+              "allow_extra_capabilities": {
+                "const": false
+              },
+              "requires_policy_any": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "forbidden_families": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "forbidden_roles": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "forbidden_in_public_demo": {
+                "type": "boolean"
+              },
+              "notes": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "effect_capability_contracts": {
+          "type": "object",
+          "maxProperties": 0,
+          "additionalProperties": false
+        },
+        "effect_aliases": {
+          "type": "object",
+          "maxProperties": 0,
+          "additionalProperties": false
+        },
+        "capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "cap.auth.check",
+              "cap.auth.reauthentication",
+              "cap.crypto.encrypt",
+              "cap.db.account.read",
+              "cap.db.payment.read",
+              "cap.db.payment.write",
+              "cap.db.read",
+              "cap.db.user.read",
+              "cap.db.user.write",
+              "cap.db.write",
+              "cap.export.storage.write",
+              "cap.outbox.write",
+              "cap.payment.charge.sandbox",
+              "cap.payment.validate",
+              "cap.pii.read",
+              "cap.secret.hash",
+              "cap.secret.seal"
+            ]
+          }
+        },
+        "evidence_records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kind",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "const": "verifier_report"
+              },
+              "status": {
+                "const": "checked"
+              },
+              "producer_kind": {
+                "enum": [
+                  "profile_fixture",
+                  null
+                ]
+              },
+              "produced_by": {
+                "type": "string"
+              },
+              "checked_by": {
+                "type": "string"
+              },
+              "reliability": {
+                "type": "number"
+              },
+              "min_reliability": {
+                "type": "number"
+              },
+              "supports_module": {
+                "type": "string"
+              },
+              "supports_workflow": {
+                "type": "string"
+              },
+              "supports_claims": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "claim_statement_sha256": {
+                "type": "string"
+              },
+              "artifact_ref": {
+                "type": "string"
+              },
+              "artifact_sha256": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "role_markers": {
+          "type": "object",
+          "maxProperties": 0,
+          "additionalProperties": false
+        },
+        "allowed_external_effects": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 0
+        }
+      }
+    },
+    "conformance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pack",
+        "required_categories"
+      ],
+      "properties": {
+        "pack": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required_categories": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "enum": [
+              "positive",
+              "negative",
+              "mutation",
+              "replay"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "registry_mode": {
+            "const": "packaged"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "base_profile": {
+            "type": "null"
+          },
+          "profile_id": {
+            "const": "ainir.public-demo.v1"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "registry_mode": {
+            "const": "additive"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "base_profile": {
+            "const": "ainir.public-demo.v1"
+          },
+          "extensions": {
+            "properties": {
+              "workflows": {
+                "minItems": 1
+              },
+              "operations": {
+                "minItems": 1
+              },
+              "evidence_records": {
+                "minItems": 1
+              }
+            }
+          },
+          "profile_id": {
+            "not": {
+              "const": "ainir.public-demo.v1"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

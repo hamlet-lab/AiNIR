@@ -1,0 +1,31 @@
+name: Profile proposal
+description: Propose a bounded workflow or consumer profile
+title: "[profile] "
+labels: [profile]
+body:
+  - type: input
+    attributes:
+      label: Canonical profile and workflow IDs
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Operations, effects, and capabilities
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Evidence and transaction requirements
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Positive, negative, and mutation cases
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Scope
+      options:
+        - label: This proposal does not require AiNIR core to execute downstream actions.
+          required: true

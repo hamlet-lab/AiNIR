@@ -12,14 +12,16 @@ AiNIR v1.0 RC Candidate is a bounded public demo and private review package. The
 
 ## v1.x hardening targets
 
-- workflow registry extension process;
-- evidence provider interface;
+- harden the implemented workflow profile extension process through external review;
+- external review and governance for the implemented offline EvidenceProvider contracts;
+- public-key issuer identity and an explicitly reviewed ledger-promotion contract;
 - canonical effect taxonomy;
-- registry snapshot and migration replay;
-- TrustReceipt migration semantics;
-- developer-facing registry authoring guide;
+- harden the implemented registry snapshot, semantic diff, and explicit migration replay through external review;
+- add cryptographic migration authorization without weakening the current fail-closed local-review path;
+- developer-facing registry authoring guide and community profile governance;
 - clearer executable-claim semantics;
 - optional consumer profile conformance packs.
+- external review and governance for non-workspace MCP tool-call profiles without adding an MCP execution runtime;
 
 ## Not planned for v1.0 final
 
@@ -35,12 +37,13 @@ The core v1 claim should remain conservative: AiNIR provides a semantic trust la
 
 The RC candidate keeps the public demo bounded and conservative. Future production work should continue with:
 
-- registry governance and workflow profile authoring;
-- external evidence provider adapters;
+- registry governance beyond the implemented local additive profile SDK;
+- networked and enterprise evidence provider adapters beyond the implemented offline fixture/file/signed-bundle set;
 - canonical effect taxonomy publication and migration;
-- registry snapshot/current/migrated TrustReceipt replay modes;
+- production governance and cryptographic authorization for the implemented snapshot/current/migrated TrustReceipt replay modes;
 - server-safe TrustReceipt manifest locking;
 - optional external consumer conformance packs.
+- separately governed MCP profile extension, public-key server identity, and host integration examples that preserve the non-executing core boundary.
 
 
 ## Infrastructure direction

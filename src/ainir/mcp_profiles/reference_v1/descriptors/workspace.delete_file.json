@@ -1,0 +1,36 @@
+{
+  "name": "workspace.delete_file",
+  "title": "Delete workspace file",
+  "description": "Delete one file within the host-authorized workspace scope after explicit per-call approval.",
+  "inputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["path"],
+    "properties": {
+      "path": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096
+      }
+    }
+  },
+  "outputSchema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["deleted"],
+    "properties": {
+      "deleted": {"type": "boolean"}
+    }
+  },
+  "annotations": {
+    "readOnlyHint": false,
+    "destructiveHint": true,
+    "idempotentHint": false,
+    "openWorldHint": false
+  },
+  "execution": {
+    "taskSupport": "forbidden"
+  }
+}

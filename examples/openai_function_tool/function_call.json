@@ -1,0 +1,8 @@
+{
+  "type": "function_call",
+  "id": "fc_example_read_1",
+  "call_id": "call_example_read_1",
+  "name": "workspace.read_text",
+  "arguments": "{\"path\":\"docs/README.md\"}",
+  "status": "completed"
+}

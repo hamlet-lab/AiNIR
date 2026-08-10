@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/mcp_tool_call_conformance_pack.schema.json",
+  "title": "AiNIR MCP Tool-Call Conformance Pack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "pack_id",
+    "profile_id",
+    "cases",
+    "production_runtime_ready",
+    "pack_sha256"
+  ],
+  "properties": {
+    "kind": {
+      "const": "AiNIRMCPToolCallConformancePack"
+    },
+    "version": {
+      "const": "ainir.mcp-tool-call-conformance-pack.v1"
+    },
+    "pack_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{2,127}$"
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{2,127}$"
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "case_id",
+          "category",
+          "expected_status",
+          "required_failed_checks",
+          "required_host_actions"
+        ],
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "enum": [
+              "positive",
+              "negative",
+              "mutation",
+              "review"
+            ]
+          },
+          "scenario": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expected_status": {
+            "enum": [
+              "passed",
+              "refused",
+              "invalid",
+              "review_required"
+            ]
+          },
+          "required_failed_checks": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 0,
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+            }
+          },
+          "required_host_actions": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 0,
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/+\\-]{1,200}$"
+            }
+          },
+          "notes": {
+            "type": "string"
+          },
+          "fixtures": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "descriptor",
+              "call",
+              "transport",
+              "host_input"
+            ],
+            "properties": {
+              "descriptor": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+              },
+              "call": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+              },
+              "transport": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+              },
+              "host_input": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+              }
+            }
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "scenario"
+            ],
+            "not": {
+              "required": [
+                "fixtures"
+              ]
+            }
+          },
+          {
+            "required": [
+              "fixtures"
+            ],
+            "not": {
+              "required": [
+                "scenario"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "production_runtime_ready": {
+      "const": false
+    },
+    "pack_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  }
+}

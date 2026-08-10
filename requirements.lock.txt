@@ -1,4 +1,7 @@
-# AiNIR public demo defensive integrity pass19 Python constraints.
+# AiNIR public demo RC2 Python constraints.
 # Used by CI with: pip install -c requirements.lock.txt -e ".[dev]"
 PyYAML==6.0.3
+jsonschema==4.26.0
 pytest==9.0.2
+setuptools==82.0.1
+wheel==0.46.3

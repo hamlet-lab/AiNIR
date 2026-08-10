@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/openai_function_call_binding.schema.json",
+  "title": "AiNIR OpenAI Function Call Binding v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind", "version", "binding_id", "binding_sha256", "source_api",
+    "response_id", "response_status", "output_item_id", "output_index",
+    "call_id", "function_name", "source_item_status",
+    "tool_definition_sha256", "function_call_item_sha256",
+    "arguments_text_sha256", "arguments_sha256", "profile_id",
+    "profile_sha256", "mcp_envelope_id", "mcp_envelope_sha256",
+    "execution_performed", "openai_api_called", "credentials_processed",
+    "production_runtime_ready"
+  ],
+  "properties": {
+    "kind": {"const": "AiNIROpenAIFunctionCallBinding"},
+    "version": {"const": "ainir.openai-function-call-binding.v1"},
+    "binding_id": {"type": "string", "pattern": "^ainir\\.openai\\.binding\\.[0-9a-f]{20}$"},
+    "binding_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "source_api": {"const": "openai.responses"},
+    "response_id": {"type": "string", "pattern": "^[A-Za-z0-9_.:-]{1,200}$"},
+    "response_status": {"const": "completed"},
+    "output_item_id": {"type": "string", "pattern": "^[A-Za-z0-9_.:-]{1,200}$"},
+    "output_index": {"type": "integer", "minimum": 0},
+    "call_id": {"type": "string", "pattern": "^[A-Za-z0-9_.:-]{1,200}$"},
+    "function_name": {"type": "string", "pattern": "^[A-Za-z0-9_.-]{1,128}$"},
+    "source_item_status": {"const": "completed"},
+    "tool_definition_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "function_call_item_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "arguments_text_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "arguments_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "profile_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{2,127}$"},
+    "profile_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "mcp_envelope_id": {"type": "string", "pattern": "^ainir\\.mcp\\.envelope\\.[0-9a-f]{20}$"},
+    "mcp_envelope_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "execution_performed": {"const": false},
+    "openai_api_called": {"const": false},
+    "credentials_processed": {"const": false},
+    "production_runtime_ready": {"const": false}
+  }
+}

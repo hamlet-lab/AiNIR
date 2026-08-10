@@ -1,0 +1,111 @@
+kind: AiNIRMCPToolCallProfile
+version: ainir.mcp-tool-call-profile.v1
+profile_id: ainir.mcp.reference.workspace.v1
+profile_version: '1.0'
+display_name: AiNIR MCP workspace tool-call reference profile
+description: Consumer-neutral, host-owned semantic checks for three bounded workspace
+  tools. This profile does not execute MCP tools.
+status: bundled
+protocol_versions:
+- '2025-11-25'
+- '2026-07-28'
+policies:
+  unknown_tool: refuse
+  tool_descriptions_are_evidence: false
+  tool_annotations_are_evidence: false
+  model_output_is_evidence: false
+  ainir_executes_actions: false
+  host_executes_actions: true
+  raw_credentials_in_arguments: refuse
+  task_execution: refuse
+  consent_mode: explicit_per_call
+tools:
+- name: workspace.read_text
+  server_id: mcp.server.workspace.reference
+  server_origin: mcp+stdio://workspace.reference
+  authorization_audience: mcp.server.workspace.reference
+  descriptor: descriptors/workspace.read_text.json
+  descriptor_sha256: sha256:5326decceb70ba56f0a1c3df3ac9ff1913028ad91a353e1c4fd993bc98613bb1
+  input_schema_sha256: sha256:6f3f9a3461eddc453d8ecee2470d0cf609b73b00430fc0c9bcddec21bcfd3447
+  output_schema_sha256: sha256:89bea4866e3834b02c7bbc87ebcdecdc1a52e0aab3e737e7b5954d7451a4c1bb
+  effects:
+  - effect.resource.read
+  capabilities:
+  - cap.resource.read
+  risk_class: read_only
+  mutating: false
+  destructive: false
+  idempotent: true
+  resource_bindings:
+  - pointer: /path
+    resource_type: workspace_path
+    permission: read
+  transaction_required: false
+  rollback_required: false
+  max_arguments_bytes: 8192
+  required_host_checks:
+  - authorization_binding
+  - explicit_consent
+  - resource_resolution
+  - schema_validation
+  decision_mode: allow
+- name: workspace.write_text
+  server_id: mcp.server.workspace.reference
+  server_origin: mcp+stdio://workspace.reference
+  authorization_audience: mcp.server.workspace.reference
+  descriptor: descriptors/workspace.write_text.json
+  descriptor_sha256: sha256:b2bb49d06adf7bfb1a60b8167324ae8fd13dcbf5d314075949563025efed6e79
+  input_schema_sha256: sha256:080e39381ffe0ad9ca2f19c3642e40b30235500a35b7393eb0c01eb504fbb8b6
+  output_schema_sha256: sha256:84792f2e798f727c8acec4e2198bab8c220a2c044d2fd9751d2aea12239aac57
+  effects:
+  - effect.resource.write
+  capabilities:
+  - cap.resource.write
+  risk_class: state_change
+  mutating: true
+  destructive: false
+  idempotent: true
+  resource_bindings:
+  - pointer: /path
+    resource_type: workspace_path
+    permission: write
+  transaction_required: true
+  rollback_required: true
+  max_arguments_bytes: 131072
+  required_host_checks:
+  - authorization_binding
+  - explicit_consent
+  - resource_resolution
+  - schema_validation
+  decision_mode: allow
+- name: workspace.delete_file
+  server_id: mcp.server.workspace.reference
+  server_origin: mcp+stdio://workspace.reference
+  authorization_audience: mcp.server.workspace.reference
+  descriptor: descriptors/workspace.delete_file.json
+  descriptor_sha256: sha256:44320c0cc670ca311ce316b9db769b4968a78c4c4dfbbf12d42fae5d11b03fed
+  input_schema_sha256: sha256:6f3f9a3461eddc453d8ecee2470d0cf609b73b00430fc0c9bcddec21bcfd3447
+  output_schema_sha256: sha256:a5cb1075f767ad871c3577fffc95c3843fe17116970c0439bdda0c6c4c2944e0
+  effects:
+  - effect.resource.delete
+  capabilities:
+  - cap.resource.delete
+  risk_class: destructive
+  mutating: true
+  destructive: true
+  idempotent: false
+  resource_bindings:
+  - pointer: /path
+    resource_type: workspace_path
+    permission: delete
+  transaction_required: true
+  rollback_required: true
+  max_arguments_bytes: 8192
+  required_host_checks:
+  - authorization_binding
+  - explicit_consent
+  - resource_resolution
+  - schema_validation
+  decision_mode: review_required
+production_runtime_ready: false
+profile_sha256: sha256:a4ba05a5e3efe1346128f27de697db01b165fc48e85906b99c2ee33a7ccdc475

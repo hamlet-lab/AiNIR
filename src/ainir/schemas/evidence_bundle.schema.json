@@ -1,0 +1,349 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/evidence_bundle.schema.json",
+  "title": "AiNIR EvidenceBundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "bundle_id",
+    "bundle_sha256",
+    "provider_id",
+    "provider_version",
+    "source_kind",
+    "records",
+    "signature",
+    "production_runtime_ready"
+  ],
+  "properties": {
+    "kind": {
+      "const": "AiNIREvidenceBundle"
+    },
+    "version": {
+      "const": "ainir.evidence-bundle.v1"
+    },
+    "bundle_id": {
+      "type": "string",
+      "pattern": "^ainir\\.evidence\\.bundle\\.[0-9a-f]{20}$"
+    },
+    "bundle_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "provider_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+    },
+    "provider_version": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+    },
+    "source_kind": {
+      "enum": [
+        "fixture",
+        "file",
+        "signed_bundle"
+      ]
+    },
+    "records": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "items": {
+        "$ref": "#/$defs/evidenceRecord"
+      }
+    },
+    "signature": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "key_id",
+            "value",
+            "purpose"
+          ],
+          "properties": {
+            "algorithm": {
+              "const": "hmac-sha256"
+            },
+            "key_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+            },
+            "value": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "purpose": {
+              "const": "offline_integrity_demo_not_public_key_attestation"
+            }
+          }
+        }
+      ]
+    },
+    "production_runtime_ready": {
+      "const": false
+    }
+  },
+  "$defs": {
+    "evidenceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "version",
+        "evidence_id",
+        "evidence_kind",
+        "issuer",
+        "producer_kind",
+        "policy_version",
+        "claim_scope",
+        "subject_binding",
+        "validity",
+        "revocation",
+        "reliability",
+        "provenance",
+        "integrity",
+        "production_runtime_ready"
+      ],
+      "properties": {
+        "kind": {
+          "const": "AiNIREvidenceRecord"
+        },
+        "version": {
+          "const": "ainir.evidence-record.v1"
+        },
+        "evidence_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+        },
+        "evidence_kind": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+        },
+        "issuer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+            },
+            "kind": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+            }
+          }
+        },
+        "producer_kind": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+        },
+        "policy_version": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+        },
+        "claim_scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "module_id",
+            "workflow",
+            "claim_ids",
+            "claim_statement_sha256"
+          ],
+          "properties": {
+            "module_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+            },
+            "workflow": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+            },
+            "claim_ids": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+              }
+            },
+            "claim_statement_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          }
+        },
+        "subject_binding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "raw_source_sha256",
+            "canonical_draft_sha256"
+          ],
+          "properties": {
+            "mode": {
+              "enum": [
+                "raw",
+                "canonical",
+                "raw_or_canonical",
+                "none"
+              ]
+            },
+            "raw_source_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "canonical_draft_sha256": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          }
+        },
+        "validity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "valid_from",
+            "valid_until"
+          ],
+          "properties": {
+            "valid_from": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "valid_until": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            }
+          }
+        },
+        "revocation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "checked_at"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "active",
+                "revoked",
+                "suspended",
+                "unknown"
+              ]
+            },
+            "checked_at": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            }
+          }
+        },
+        "reliability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "score",
+            "minimum_required"
+          ],
+          "properties": {
+            "score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "minimum_required": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "provider_id",
+            "provider_version",
+            "source_kind",
+            "source_ref"
+          ],
+          "properties": {
+            "provider_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+            },
+            "provider_version": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.:@/-]{1,160}$"
+            },
+            "source_kind": {
+              "enum": [
+                "fixture",
+                "file",
+                "signed_bundle"
+              ]
+            },
+            "source_ref": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1,
+              "maxLength": 512
+            }
+          }
+        },
+        "integrity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "record_sha256"
+          ],
+          "properties": {
+            "algorithm": {
+              "const": "canonical_json_sha256"
+            },
+            "record_sha256": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          }
+        },
+        "production_runtime_ready": {
+          "const": false
+        }
+      }
+    }
+  }
+}

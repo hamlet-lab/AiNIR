@@ -1,0 +1,11 @@
+kind: AiNIRConformancePack
+version: ainir.conformance-pack.v1
+profile_id: ainir.public-demo.v1
+cases: []
+sources:
+- id: public_golden_traces
+  type: golden_traces
+  path: golden_traces.yaml
+- id: public_negative_corpus
+  type: negative_corpus
+  path: negative_conformance_corpus.yaml

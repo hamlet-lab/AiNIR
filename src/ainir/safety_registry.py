@@ -17,6 +17,7 @@ from typing import Any, Mapping
 import yaml
 
 from .core import load_yaml_no_duplicate_keys
+from .registry_context import active_registry_bundle
 
 SAFE_ID_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_.-]{0,127}$")
 
@@ -295,5 +296,12 @@ class SafetyRegistry:
 
 
 @lru_cache(maxsize=1)
-def get_registry() -> SafetyRegistry:
+def _default_registry() -> SafetyRegistry:
     return SafetyRegistry.load()
+
+
+def get_registry() -> SafetyRegistry:
+    bundle = active_registry_bundle()
+    if bundle is not None:
+        return bundle.safety_registry
+    return _default_registry()

@@ -16,6 +16,7 @@ This repo includes:
 - lowering eligibility gate;
 - negative conformance corpus and golden traces;
 - a TypeScript skeleton lowerer with host enforcement hooks.
+- bounded, non-executing MCP tool-call profile artifacts and conformance fixtures.
 
 ## Private by default
 
@@ -29,6 +30,7 @@ Keep these private unless a separate release decision is made:
 - enterprise policy packs;
 - extended evidence ledger and trust promotion suite;
 - production-grade provider/runtime adapters.
+- production MCP transports, credentials, authorization services, tool implementations, and enterprise server profiles.
 
 ## Why split the project this way
 

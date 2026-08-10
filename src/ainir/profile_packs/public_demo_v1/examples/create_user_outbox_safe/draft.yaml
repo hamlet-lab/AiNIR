@@ -1,0 +1,54 @@
+module: demo.create_user_outbox_safe
+workflow: CreateUser
+task: CreateUserRequest
+environment: staging
+executable: true
+input_type: CreateUserInput
+output_type: CreateUserResult
+policies:
+- id: policy.no_direct_email_in_create_user
+- id: policy.transactional_outbox_required
+claims:
+- id: claim.create_user_uses_outbox
+  status: verified
+  statement: CreateUser inserts a WelcomeEmailRequested outbox event instead of sending
+    real email directly.
+  evidence:
+  - id: evidence.demo.safe_outbox
+    kind: verifier_report
+transaction:
+  id: tx.create_user
+  includes:
+  - op.insert_user
+  - op.insert_outbox_event
+  mode: atomic
+  rollback_on:
+  - failure.db_unavailable
+  - failure.duplicate_email
+operations:
+- id: op.normalize_email
+  op: data.normalize_email
+  effects: []
+- id: op.check_duplicate
+  op: db.exists_user_by_email
+  effects:
+  - effect.storage.db.read
+  capabilities:
+  - cap.db.user.read
+- id: op.insert_user
+  op: db.insert_user
+  effects:
+  - effect.storage.db.write
+  capabilities:
+  - cap.db.user.write
+  policies:
+  - policy.user_email_unique
+- id: op.insert_outbox_event
+  op: outbox.insert_welcome_email_requested
+  effects:
+  - effect.storage.outbox.write
+  capabilities:
+  - cap.outbox.write
+  policies:
+  - policy.transactional_outbox_required
+return: state

@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/registry_diff.schema.json",
+  "title": "AiNIR RegistryDiff v1",
+  "description": "Deterministic semantic-change report. Unknown classifications require human review and are never treated as compatible.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "diff_id",
+    "diff_sha256",
+    "source_snapshot_id",
+    "target_snapshot_id",
+    "source_snapshot_sha256",
+    "target_snapshot_sha256",
+    "source_runtime_snapshot_hash",
+    "target_runtime_snapshot_hash",
+    "overall_classification",
+    "changed",
+    "change_count",
+    "classification_counts",
+    "requires_explicit_migration",
+    "changes",
+    "production_runtime_ready"
+  ],
+  "properties": {
+    "kind": {
+      "const": "AiNIRRegistryDiff"
+    },
+    "version": {
+      "const": "ainir.registry-diff.v1"
+    },
+    "diff_id": {
+      "type": "string",
+      "pattern": "^ainir\\.registry\\.diff\\.[0-9a-f]{20}$"
+    },
+    "diff_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "source_snapshot_id": {
+      "type": "string",
+      "pattern": "^ainir\\.registry\\.snapshot\\.[0-9a-f]{20}$"
+    },
+    "target_snapshot_id": {
+      "type": "string",
+      "pattern": "^ainir\\.registry\\.snapshot\\.[0-9a-f]{20}$"
+    },
+    "source_snapshot_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "target_snapshot_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "source_runtime_snapshot_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "target_runtime_snapshot_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "overall_classification": {
+      "enum": [
+        "tightening",
+        "compatible",
+        "behavioral",
+        "relaxation",
+        "breaking",
+        "unknown"
+      ]
+    },
+    "changed": {
+      "type": "boolean"
+    },
+    "change_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "classification_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tightening": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "compatible": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "behavioral": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "relaxation": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "breaking": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unknown": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "requires_explicit_migration": {
+      "type": "boolean"
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "change_type",
+          "old",
+          "new",
+          "classification",
+          "rationale",
+          "change_id"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "change_type": {
+            "enum": [
+              "added",
+              "removed",
+              "modified"
+            ]
+          },
+          "old": {},
+          "new": {},
+          "classification": {
+            "enum": [
+              "tightening",
+              "compatible",
+              "behavioral",
+              "relaxation",
+              "breaking",
+              "unknown"
+            ]
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "change_id": {
+            "type": "string",
+            "pattern": "^ainir\\.registry\\.change\\.[0-9a-f]{20}$"
+          }
+        }
+      }
+    },
+    "production_runtime_ready": {
+      "const": false
+    }
+  }
+}

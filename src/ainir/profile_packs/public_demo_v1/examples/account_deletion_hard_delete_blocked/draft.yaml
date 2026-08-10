@@ -1,0 +1,18 @@
+module: demo.account_deletion_hard_delete_blocked
+workflow: AccountDeletion
+task: ProcessAccountDeletionWorker
+environment: beta
+executable: false
+input_type: AccountDeletionJob
+output_type: DeletionResult
+claims: []
+operations:
+  - id: op.check_authorization
+    op: auth.check_account_deletion_authorization
+    effects: [effect.auth.authorization.check]
+    capabilities: [cap.auth.check]
+  - id: op.hard_delete_user
+    op: db.hard_delete_user
+    effects: [effect.destructive.account.hard_delete]
+    capabilities: [cap.account.delete.hard]
+return: state

@@ -14,6 +14,7 @@ from typing import Any
 
 from .core import DraftModule, Finding
 from .operation_registry import get_operation_registry
+from .registry_context import DynamicRegistryProxy
 from .safety_registry import get_registry, strict_safe_id
 
 
@@ -28,8 +29,8 @@ class TransactionBinding:
     raw: Mapping[str, Any]
 
 
-REGISTRY = get_registry()
-OP_REGISTRY = get_operation_registry()
+REGISTRY = DynamicRegistryProxy(get_registry)
+OP_REGISTRY = DynamicRegistryProxy(get_operation_registry)
 
 
 def extract_transactions(draft: DraftModule) -> list[TransactionBinding]:

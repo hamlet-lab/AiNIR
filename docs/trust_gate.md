@@ -55,7 +55,7 @@ The Trust Gate summarizes these checks:
 ## CLI
 
 ```bash
-python -m ainir trust-gate examples/create_user_outbox_safe/draft.yaml --json --out-dir /tmp/ainir_trust_gate
+python -m ainir trust evaluate examples/create_user_outbox_safe/draft.yaml --json --out-dir /tmp/ainir_trust_gate
 ```
 
 Unsafe or malformed drafts produce `status: refused`, `status: hold`, or `status: invalid` and must not be lowered.

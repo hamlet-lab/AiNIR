@@ -1,0 +1,189 @@
+kind: AiNIRMCPToolCallConformancePack
+version: ainir.mcp-tool-call-conformance-pack.v1
+pack_id: ainir.mcp.reference.workspace.conformance.v1
+profile_id: ainir.mcp.reference.workspace.v1
+cases:
+- case_id: safe_read_passed
+  category: positive
+  scenario: safe_read
+  expected_status: passed
+  required_failed_checks: []
+  required_host_actions:
+  - execute_outside_ainir_core
+- case_id: safe_write_passed
+  category: positive
+  scenario: safe_write
+  expected_status: passed
+  required_failed_checks: []
+  required_host_actions:
+  - execute_outside_ainir_core
+- case_id: destructive_delete_review
+  category: review
+  scenario: destructive_delete_review
+  expected_status: review_required
+  required_failed_checks: []
+  required_host_actions:
+  - obtain_final_destructive_action_confirmation
+- case_id: unknown_tool_refused
+  category: negative
+  scenario: unknown_tool
+  expected_status: refused
+  required_failed_checks:
+  - profile.tool_known
+  required_host_actions: []
+- case_id: descriptor_mismatch_refused
+  category: mutation
+  scenario: descriptor_mismatch
+  expected_status: refused
+  required_failed_checks:
+  - tool.descriptor_sha256
+  required_host_actions: []
+- case_id: schema_extra_argument_refused
+  category: negative
+  scenario: schema_extra_argument
+  expected_status: refused
+  required_failed_checks:
+  - resources.normalized
+  required_host_actions: []
+- case_id: path_traversal_refused
+  category: negative
+  scenario: path_traversal
+  expected_status: refused
+  required_failed_checks:
+  - resources.normalized
+  required_host_actions: []
+- case_id: absolute_path_refused
+  category: negative
+  scenario: absolute_path
+  expected_status: refused
+  required_failed_checks:
+  - resources.normalized
+  required_host_actions: []
+- case_id: windows_ads_path_refused
+  category: negative
+  scenario: windows_ads_path
+  expected_status: refused
+  required_failed_checks:
+  - resources.normalized
+  required_host_actions: []
+- case_id: windows_reserved_device_path_refused
+  category: negative
+  scenario: windows_reserved_device_path
+  expected_status: refused
+  required_failed_checks:
+  - resources.normalized
+  required_host_actions: []
+- case_id: control_character_path_refused
+  category: negative
+  scenario: control_character_path
+  expected_status: refused
+  required_failed_checks:
+  - resources.normalized
+  required_host_actions: []
+- case_id: credential_argument_refused
+  category: negative
+  scenario: credential_argument
+  expected_status: refused
+  required_failed_checks:
+  - arguments.sensitive_paths
+  required_host_actions: []
+- case_id: credential_meta_refused
+  category: negative
+  scenario: credential_meta
+  expected_status: refused
+  required_failed_checks:
+  - arguments.sensitive_paths
+  required_host_actions: []
+- case_id: credential_value_in_content_refused
+  category: negative
+  scenario: credential_value_in_content
+  expected_status: refused
+  required_failed_checks:
+  - arguments.sensitive_paths
+  required_host_actions: []
+- case_id: wrong_audience_refused
+  category: negative
+  scenario: wrong_audience
+  expected_status: refused
+  required_failed_checks:
+  - host.authorization.audience
+  required_host_actions: []
+- case_id: missing_consent_refused
+  category: negative
+  scenario: missing_consent
+  expected_status: refused
+  required_failed_checks:
+  - host.consent.decision
+  required_host_actions: []
+- case_id: expired_consent_refused
+  category: negative
+  scenario: expired_consent
+  expected_status: refused
+  required_failed_checks:
+  - host.consent.validity
+  required_host_actions: []
+- case_id: capability_widening_refused
+  category: negative
+  scenario: capability_widening
+  expected_status: refused
+  required_failed_checks:
+  - host.capabilities.exact
+  required_host_actions: []
+- case_id: missing_transaction_refused
+  category: negative
+  scenario: missing_transaction
+  expected_status: refused
+  required_failed_checks:
+  - host.transaction.present
+  required_host_actions: []
+- case_id: missing_rollback_refused
+  category: negative
+  scenario: missing_rollback
+  expected_status: refused
+  required_failed_checks:
+  - host.transaction.rollback_available
+  required_host_actions: []
+- case_id: annotation_understates_write_refused
+  category: mutation
+  scenario: annotation_understates_write
+  expected_status: refused
+  required_failed_checks:
+  - annotations.read_only_not_understated
+  required_host_actions: []
+- case_id: task_requested_refused
+  category: negative
+  scenario: task_requested
+  expected_status: refused
+  required_failed_checks:
+  - task.not_requested
+  required_host_actions: []
+- case_id: mrtr_present_refused
+  category: negative
+  scenario: mrtr_present
+  expected_status: refused
+  required_failed_checks:
+  - mrtr.not_present
+  required_host_actions: []
+- case_id: protocol_header_mismatch_refused
+  category: negative
+  scenario: protocol_header_mismatch
+  expected_status: refused
+  required_failed_checks:
+  - transport.name_header
+  required_host_actions: []
+- case_id: unauthenticated_server_refused
+  category: negative
+  scenario: unauthenticated_server
+  expected_status: refused
+  required_failed_checks:
+  - host.server.authenticated
+  required_host_actions: []
+- case_id: symlink_unresolved_refused
+  category: negative
+  scenario: symlink_unresolved
+  expected_status: refused
+  required_failed_checks:
+  - host.resource_resolution.symlinks
+  required_host_actions: []
+production_runtime_ready: false
+pack_sha256: sha256:f359fe4a16d7fdf9410b237526bc950acae73d4c6d3f5ec6677c57595da3443d

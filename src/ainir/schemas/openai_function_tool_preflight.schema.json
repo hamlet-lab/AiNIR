@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/openai_function_tool_preflight.schema.json",
+  "title": "AiNIR OpenAI Function Tool Preflight v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind", "version", "preflight_id", "preflight_sha256", "overall_status",
+    "host_handoff_allowed", "binding", "mcp_envelope", "mcp_host_context",
+    "mcp_assessment", "required_host_actions", "execution_performed",
+    "openai_api_called", "tool_output_submitted", "credentials_processed",
+    "production_runtime_ready"
+  ],
+  "properties": {
+    "kind": {"const": "AiNIROpenAIFunctionToolPreflight"},
+    "version": {"const": "ainir.openai-function-tool-preflight.v1"},
+    "preflight_id": {"type": "string", "pattern": "^ainir\\.openai\\.preflight\\.[0-9a-f]{20}$"},
+    "preflight_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "overall_status": {"enum": ["passed", "refused", "invalid", "review_required"]},
+    "host_handoff_allowed": {"type": "boolean"},
+    "binding": {"type": "object"},
+    "mcp_envelope": {"type": "object"},
+    "mcp_host_context": {"type": "object"},
+    "mcp_assessment": {"type": "object"},
+    "required_host_actions": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "execution_performed": {"const": false},
+    "openai_api_called": {"const": false},
+    "tool_output_submitted": {"const": false},
+    "credentials_processed": {"const": false},
+    "production_runtime_ready": {"const": false}
+  }
+}

@@ -18,6 +18,14 @@ from .verifier import verify_draft
 from .safety_registry import get_registry
 from .evidence_ledger import non_vacuous_evidence_findings
 from .registry_provenance import registry_snapshot, registry_snapshot_failures
+from .contracts import (
+    LEGACY_TRUST_GATE_DECISION_VERSION,
+    LEGACY_TRUST_RECEIPT_VERSION,
+    TRUST_GATE_DECISION_CONTRACT,
+    TRUST_GATE_DECISION_KIND,
+    TRUST_RECEIPT_CONTRACT,
+    TRUST_RECEIPT_KIND,
+)
 
 
 _GATE_PREFIXES: dict[str, str] = {
@@ -80,10 +88,17 @@ class TrustGateDecision:
     findings: tuple[Mapping[str, Any], ...] = field(default_factory=tuple)
     receipt: Mapping[str, Any] = field(default_factory=dict)
 
-    def as_dict(self) -> dict[str, Any]:
-        return {
-            "kind": "AiNIRTrustGateDecision",
-            "version": "pre_v1_phase18",
+    def as_dict(self, *, contract_version: str = LEGACY_TRUST_GATE_DECISION_VERSION) -> dict[str, Any]:
+        """Serialize the decision using a stable or legacy public contract.
+
+        The default remains the legacy pre-v1 representation for one RC cycle so
+        existing phase harnesses and stored artifacts stay byte-for-byte
+        reproducible. New user-facing CLI commands call :meth:`as_public_dict`.
+        """
+
+        payload = {
+            "kind": TRUST_GATE_DECISION_KIND,
+            "version": LEGACY_TRUST_GATE_DECISION_VERSION,
             "status": self.status,
             "module_id": self.module_id,
             "workflow": self.workflow,
@@ -101,6 +116,23 @@ class TrustGateDecision:
             "findings": [dict(f) for f in self.findings],
             "receipt": dict(self.receipt),
         }
+        if contract_version == LEGACY_TRUST_GATE_DECISION_VERSION:
+            return payload
+        if contract_version != TRUST_GATE_DECISION_CONTRACT:
+            raise ValueError(f"unsupported TrustGateDecision contract: {contract_version!r}")
+        from .trust_receipt_store import convert_trust_receipt_contract
+
+        payload["legacy_version"] = LEGACY_TRUST_GATE_DECISION_VERSION
+        payload["version"] = TRUST_GATE_DECISION_CONTRACT
+        payload["receipt"] = convert_trust_receipt_contract(
+            payload["receipt"], target_version=TRUST_RECEIPT_CONTRACT
+        )
+        return payload
+
+    def as_public_dict(self) -> dict[str, Any]:
+        """Serialize with stable phase-independent contract identifiers."""
+
+        return self.as_dict(contract_version=TRUST_GATE_DECISION_CONTRACT)
 
 
 def evaluate_trust_gate(draft: DraftModule, context: TrustedExecutionContext | None = None) -> TrustGateDecision:
@@ -342,8 +374,8 @@ def _build_receipt(
     receipt_id = "ainir.trust.receipt." + sha256(receipt_seed.encode("utf-8")).hexdigest()[:20]
     receipt = {
         "receipt_id": receipt_id,
-        "receipt_kind": "AiNIRTrustReceipt",
-        "version": "pre_v1_phase18",
+        "receipt_kind": TRUST_RECEIPT_KIND,
+        "version": LEGACY_TRUST_RECEIPT_VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "status": status,
         "module_id": report.module_id,

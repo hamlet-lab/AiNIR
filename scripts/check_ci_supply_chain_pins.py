@@ -32,6 +32,12 @@ def main() -> int:
         failures.append('workflow does not install Node dependencies from package-lock with npm ci')
     if 'npm install -g' in text:
         failures.append('workflow still performs global npm install')
+    full_pytest = 'python -m pytest -q -p no:cacheprovider'
+    quick_gate = 'python scripts/run_phase30_v1_rc_candidate_check.py --mode quick-integrity'
+    if full_pytest not in text:
+        failures.append('workflow does not run the full Python test suite')
+    if quick_gate in text and full_pytest in text and text.index(full_pytest) > text.index(quick_gate):
+        failures.append('workflow runs quick-integrity before the full Python test suite')
     if failures:
         for failure in failures:
             print(f'FAILED: {failure}')

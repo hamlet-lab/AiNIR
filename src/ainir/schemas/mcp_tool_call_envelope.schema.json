@@ -1,0 +1,299 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ainir.dev/schemas/mcp_tool_call_envelope.schema.json",
+  "title": "AiNIR MCP Tool-Call Envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "envelope_id",
+    "envelope_sha256",
+    "profile_id",
+    "protocol_version",
+    "jsonrpc_request_id",
+    "method",
+    "tool_name",
+    "descriptor_sha256",
+    "input_schema_sha256",
+    "output_schema_sha256",
+    "arguments",
+    "arguments_sha256",
+    "arguments_size",
+    "untrusted_metadata",
+    "transport_observations",
+    "requested_resources",
+    "requested_resources_sha256",
+    "sensitive_argument_paths",
+    "task_requested",
+    "mrtr_input_responses_present",
+    "normalization_findings",
+    "production_runtime_ready"
+  ],
+  "properties": {
+    "kind": {
+      "const": "AiNIRMCPToolCallEnvelope"
+    },
+    "version": {
+      "const": "ainir.mcp-tool-call-envelope.v1"
+    },
+    "envelope_id": {
+      "type": "string",
+      "pattern": "^ainir\\.mcp\\.envelope\\.[0-9a-f]{20}$"
+    },
+    "envelope_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{2,127}$"
+    },
+    "protocol_version": {
+      "enum": [
+        "2025-11-25",
+        "2026-07-28"
+      ]
+    },
+    "jsonrpc_request_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "integer"
+        }
+      ]
+    },
+    "method": {
+      "const": "tools/call"
+    },
+    "tool_name": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]{1,128}$"
+    },
+    "descriptor_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "input_schema_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "output_schema_sha256": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "arguments": {
+      "type": "object"
+    },
+    "arguments_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "arguments_size": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "untrusted_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "description_sha256",
+        "annotations",
+        "execution",
+        "client_meta_sha256"
+      ],
+      "properties": {
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "description_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "annotations": {
+          "type": "object"
+        },
+        "execution": {
+          "type": "object"
+        },
+        "client_meta_sha256": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "transport_observations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method_header",
+        "name_header"
+      ],
+      "properties": {
+        "method_header": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name_header": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "requested_resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pointer",
+          "resource_type",
+          "permission",
+          "raw_value",
+          "normalized_value",
+          "status",
+          "error"
+        ],
+        "properties": {
+          "pointer": {
+            "type": "string",
+            "pattern": "^/"
+          },
+          "resource_type": {
+            "enum": [
+              "workspace_path",
+              "uri",
+              "opaque"
+            ]
+          },
+          "permission": {
+            "enum": [
+              "read",
+              "write",
+              "delete",
+              "invoke"
+            ]
+          },
+          "raw_value": {},
+          "normalized_value": {},
+          "status": {
+            "enum": [
+              "normalized",
+              "invalid"
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "requested_resources_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "sensitive_argument_paths": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^/"
+      }
+    },
+    "task_requested": {
+      "type": "boolean"
+    },
+    "mrtr_input_responses_present": {
+      "type": "boolean"
+    },
+    "normalization_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rule",
+          "severity",
+          "target",
+          "message"
+        ],
+        "properties": {
+          "rule": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "enum": [
+              "critical",
+              "warning",
+              "info"
+            ]
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "production_runtime_ready": {
+      "const": false
+    }
+  }
+}

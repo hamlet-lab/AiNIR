@@ -28,9 +28,9 @@ For an unknown workflow, AiNIR would otherwise have to guess:
 
 Guessing here would weaken the Trust Gate.
 
-## Future extension path
+## Current public extension path
 
-A production deployment needs a workflow profile authoring path. A new workflow should be added with:
+P3 provides a local, additive Profile Manifest SDK and standalone conformance runner. A new workflow profile is created with `ainir profile init`, then validated and run before review. It must include:
 
 1. canonical workflow id and aliases;
 2. operation spec registry entries;
@@ -43,9 +43,11 @@ A production deployment needs a workflow profile authoring path. A new workflow 
 9. golden trace expectations;
 10. receipt replay expectations.
 
+The resulting registry bundle is context-local and conformance-only. It cannot overwrite packaged registry entries and is not a production registry service.
+
 ## Production note
 
-The public RC candidate is closed-world. A production deployment may add a `review_required` state for unknown workflows, but it should not silently pass them.
+The default public RC candidate remains closed-world. Authored workflows are recognized only inside an explicit validated profile context. A production deployment may add a `review_required` state for unknown workflows, but it should not silently pass them.
 
 
 ## Operational risk of bypass

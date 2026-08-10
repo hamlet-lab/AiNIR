@@ -1,0 +1,21 @@
+{
+  "host_id": "host.reference",
+  "actor_id": "human.user",
+  "evaluation_time": "2026-08-10T00:00:00Z",
+  "server_id": "mcp.server.workspace.reference",
+  "server_origin": "mcp+stdio://workspace.reference",
+  "authorization_audience": "mcp.server.workspace.reference",
+  "authenticated": true,
+  "schema_validator_id": "host.schema.v1",
+  "schema_validation_status": "passed",
+  "capability_grants": ["cap.resource.read"],
+  "resource_scope_ids": ["scope.workspace.docs"],
+  "resource_resolution_status": "passed",
+  "symlinks_resolved": true,
+  "consent_decision": "approved",
+  "consent_issued_at": "2026-08-09T23:59:00Z",
+  "consent_valid_until": "2026-08-10T00:05:00Z",
+  "transaction_status": null,
+  "rollback_available": null,
+  "rollback_plan_sha256": null
+}

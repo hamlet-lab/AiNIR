@@ -1,0 +1,121 @@
+kind: AiNIRProfileManifest
+version: ainir.profile-manifest.v1
+profile_id: ainir.public-demo.v1
+profile_version: 1.0.0-rc2
+display_name: AiNIR Public Demo Workflow Profile
+description: Bundled closed-world profile binding the six public demo workflows to
+  the existing packaged registries and conformance corpora.
+status: bundled
+registry_mode: packaged
+base_profile: null
+policies:
+  unknown_workflow: refuse
+  unknown_operation: refuse
+  unknown_effect: refuse
+  model_output_is_evidence: false
+  consumer_can_override_trust_gate: false
+  core_executes_actions: false
+coverage:
+  workflows:
+  - AccountDeletion
+  - CreateUser
+  - NewsletterSignup
+  - OrderPayment
+  - PIIExportRequest
+  - PasswordReset
+  operations:
+  - account.soft_delete
+  - auth.check_account_deletion_authorization
+  - auth.check_order_payment
+  - auth.check_pii_export_authorization
+  - auth.verify_recent_reauthentication
+  - consent.enforce
+  - data.noop
+  - data.normalize_email
+  - db.exists_user_by_email
+  - db.find_user_for_password_reset
+  - db.get_payment_intent
+  - db.hard_delete_user
+  - db.insert_password_reset_token
+  - db.insert_payment_intent
+  - db.insert_subscriber
+  - db.insert_user
+  - db.read_user_pii_bundle
+  - db.update_payment_status
+  - email.marketing.real
+  - email.send.real
+  - export.encrypt_pii_export_package
+  - grace_period.check
+  - http.call
+  - legal_hold.check
+  - log.write_debug
+  - outbox.insert_double_opt_in
+  - outbox.insert_password_reset_requested
+  - outbox.insert_welcome_email_requested
+  - payment.charge.real
+  - payment.charge.sandbox
+  - payment.validate_amount
+  - policy.enforce_export_field_allowlist
+  - policy.enforce_no_user_enumeration
+  - secret.hash_password_reset_token
+  - secret.seal_password_reset_token
+  - storage.write_encrypted_pii_export_package
+  - storage.write_export_package
+  effects:
+  - effect.auth.authorization.check
+  - effect.auth.reauthentication.check
+  - effect.crypto.encrypt
+  - effect.destructive.account.hard_delete
+  - effect.external.notification.email.mock
+  - effect.external.payment.charge.mock
+  - effect.external.payment.charge.sandbox
+  - effect.payment.validate.Amount
+  - effect.privacy.pii.raw_log
+  - effect.privacy.pii.raw_store
+  - effect.privacy.pii.read
+  - effect.secret.raw_token.log
+  - effect.secret.raw_token.store
+  - effect.storage.db.read
+  - effect.storage.db.write
+  - effect.storage.export_package.write
+  - effect.storage.outbox.write
+  - effect.storage.payment_intent.write
+  capabilities:
+  - cap.auth.check
+  - cap.auth.reauthentication
+  - cap.crypto.encrypt
+  - cap.db.account.read
+  - cap.db.payment.read
+  - cap.db.payment.write
+  - cap.db.read
+  - cap.db.user.read
+  - cap.db.user.write
+  - cap.db.write
+  - cap.export.storage.write
+  - cap.outbox.write
+  - cap.payment.charge.sandbox
+  - cap.payment.validate
+  - cap.pii.read
+  - cap.secret.hash
+  - cap.secret.seal
+  evidence_records:
+  - evidence.demo.pii_export_authorized
+  - evidence.demo.safe_outbox
+  transaction_workflows:
+  - CreateUser
+extensions:
+  workflows: []
+  operations: []
+  effect_capability_contracts: {}
+  effect_aliases: {}
+  capabilities: []
+  evidence_records: []
+  role_markers: {}
+  allowed_external_effects: []
+conformance:
+  pack: conformance.yaml
+  required_categories:
+  - mutation
+  - negative
+  - positive
+  - replay

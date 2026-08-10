@@ -7,11 +7,14 @@ A build remains within the v1.0 RC candidate boundary only if all criteria below
 ```bash
 python -m pytest -q
 python -m ainir demo --out-dir /tmp/ainir_demo_results
-python -m ainir negative-conformance-eval --out-dir /tmp/ainir_negative_conformance
-python -m ainir golden-trace-eval --out-dir /tmp/ainir_golden_traces
-python -m ainir phase25-verified-intent-contract-eval --out-dir /tmp/ainir_phase25_verified_intent_contract
-python -m ainir phase26-private-trial-eval --out-dir /tmp/ainir_phase26_private_trial
-python -m ainir phase30-v1-rc-candidate-check --out-dir /tmp/ainir_phase30_v1_rc_candidate
+python -m ainir conformance negative --out-dir /tmp/ainir_negative_conformance
+python -m ainir conformance golden --out-dir /tmp/ainir_golden_traces
+python -m ainir profile validate ainir.public-demo.v1
+python -m ainir conformance run ainir.public-demo.v1 --out-dir /tmp/ainir_profile_conformance
+python -m ainir conformance intent-contract --out-dir /tmp/ainir_intent_contract
+python scripts/check_offline_evidence_providers.py --out-dir /tmp/ainir_offline_evidence
+python -m ainir conformance private-trial --out-dir /tmp/ainir_private_trial
+python -m ainir conformance release-candidate --out-dir /tmp/ainir_rc_candidate
 ```
 
 ## Required safety behavior
@@ -26,6 +29,13 @@ python -m ainir phase30-v1-rc-candidate-check --out-dir /tmp/ainir_phase30_v1_rc
 - Transaction metadata with unknown fields is refused by the strict draft contract.
 - Unresolved ambiguity is allowed to remain a non-executable verification state, but it cannot lower.
 - TrustReceipt replay detects draft/context/registry/report mismatch.
+- Additive profiles cannot replace packaged registry entries or nest registry contexts.
+- Additive profiles can compose only reviewed exact effects/capabilities; taxonomy aliases, external allowlists, broad families, and capability prefixes are refused.
+- Positive, negative, mutation, and replay declarations are non-vacuous and profile paths cannot escape the profile root.
+- Offline provider output is independently rebound to exact provider, issuer, claim, subject, validity, bounded revocation freshness, reliability, bound-bundle record membership, and integrity policy.
+- Signed evidence is recomputed with host-supplied keys; a provider's own signature or validation claim is not authoritative.
+- Signed-bundle key IDs are policy-allowlisted and HMAC remains explicitly non-production.
+- A validated provider candidate is not automatically inserted into the Trust Gate Evidence Ledger.
 
 - Trust Gate `lowering_allowed` matches the public lowerer preflight for input type, output type, and return expression allowlists.
 - Trust-looking claim statuses such as `evidence_checked` and `evidence_attached` are not accepted as self-attested substitutes for ledger-bound `verified` evidence.

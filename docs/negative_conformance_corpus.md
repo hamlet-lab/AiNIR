@@ -6,7 +6,7 @@ Phase 7 turns previously discovered regression misses into a fixed negative conf
 Run:
 
 ```bash
-PYTHONPATH=src python -m ainir negative-conformance-eval --out-dir /tmp/ainir_negative_conformance
+PYTHONPATH=src python -m ainir conformance negative --out-dir /tmp/ainir_negative_conformance
 ```
 
 The harness checks three things:
