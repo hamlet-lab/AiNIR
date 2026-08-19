@@ -203,9 +203,11 @@ See [`docs/mcp_tool_call_profile.md`](docs/mcp_tool_call_profile.md), [`docs/mcp
 
 These layers are complementary. AiNIR is not presented as a replacement for the others.
 
-## Scope and guarantees
+## Bounded public demo scope and guarantees
 
-This repository is a **bounded v1.0 RC candidate public demo**.
+This repository is a **bounded v1.0 RC candidate public demo**. It is **not a v1.0 final** and **not a production runtime**.
+
+The current public implementation is intentionally **closed-world**. Its **workflow registry** recognizes a bounded set of reviewed workflows; unknown workflows are refused instead of guessed.
 
 The current public claim is deliberately narrow:
 
