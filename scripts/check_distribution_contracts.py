@@ -118,7 +118,7 @@ import ainir
 from ainir.resources import public_resource_manifest
 print(json.dumps({
     "runtime_version": ainir.__version__,
-    "metadata_version": version("ainir-public-demo"),
+    "metadata_version": version("ainir"),
     "module_path": str(Path(ainir.__file__).resolve()),
     "resource_manifest": public_resource_manifest(),
 }, sort_keys=True))
@@ -140,7 +140,6 @@ def _installed_cli(
     env["PYTHONPATH"] = str(site)
     env["PYTHONNOUSERSITE"] = "1"
     return _run([sys.executable, "-m", "ainir", *args], cwd=runtime, env=env, timeout=timeout)
-
 
 
 
@@ -634,7 +633,6 @@ def run_distribution_contract_check(work_dir: Path) -> dict[str, Any]:
             accepted_stderr_tail="" if p4_migrated_accepted is None else p4_migrated_accepted.stderr[-1000:],
         )
     )
-
 
     evidence_out = runtime / "offline-evidence-providers"
     evidence_probe = _installed_offline_evidence_probe(
