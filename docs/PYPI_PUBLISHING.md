@@ -6,7 +6,7 @@ This document describes the bounded RC publishing path. It does not change AiNIR
 
 ## Public install experience
 
-The first-run path is now:
+The first-run path is:
 
 ```bash
 python -m pip install ainir
@@ -29,12 +29,13 @@ When started from GitHub Actions it offers three targets:
 
 1. `build-only` — build and verify distributions; publish nothing.
 2. `testpypi` — publish the already-verified distributions to TestPyPI.
-3. `pypi` — publish the already-verified distributions to PyPI.
+3. `pypi` — publish the already-verified distributions to PyPI and, after a successful upload, verify that exact version from the public PyPI index.
 
-The workflow does not trigger on `push`, tags, or GitHub Releases. A normal repository update therefore cannot publish a package by itself.
+The workflow does not trigger on `push`, tags, GitHub Releases, or a schedule. A normal repository update therefore cannot publish a package by itself.
 
 Before any publishing job can run, the build job:
 
+- resolves the source release version and exposes it as a job output;
 - installs the locked runtime dependency needed by the release checks;
 - runs the existing distribution contract suite;
 - builds exactly one wheel and one sdist;
@@ -43,6 +44,23 @@ Before any publishing job can run, the build job:
 - changes outside the source checkout;
 - runs both `python -m ainir demo` and the installed `ainir demo` console command;
 - uploads the verified wheel/sdist as a GitHub Actions artifact for the publishing job.
+
+## Post-publication public-index smoke
+
+When target `pypi` succeeds, the workflow starts a separate `verify-public-pypi-install` job.
+
+That job deliberately does **not** check out the repository and does **not** download the build artifact. Instead it:
+
+1. creates a fresh virtual environment on a new runner;
+2. installs the exact source release version with `--no-cache-dir --index-url https://pypi.org/simple`;
+3. retries briefly to tolerate normal PyPI index propagation delay;
+4. verifies `importlib.metadata.version("ainir")` exactly matches the release version;
+5. changes to the runner temp directory, outside any source checkout;
+6. runs both `python -m ainir demo` and the installed `ainir demo` console command.
+
+This closes the gap between “the artifact uploaded successfully” and “a new user can actually obtain and run that exact artifact from public PyPI.”
+
+A failed post-publication smoke does **not** roll back or delete a PyPI upload. PyPI releases are immutable in normal operation. If the upload job is green but the smoke job is red, first determine whether the failure is only index propagation/networking or an actual artifact defect. Do not attempt to overwrite the same version.
 
 ## Authentication: PyPI Trusted Publishing
 
@@ -80,16 +98,18 @@ If TestPyPI is used, apply the same pattern to a `testpypi` environment.
 4. Optionally publish the verified artifact to TestPyPI.
 5. Re-check the production Trusted Publisher identity and GitHub `pypi` environment.
 6. Run `publish-pypi` with target `pypi`.
-7. Confirm the PyPI project/version and run a clean-environment install smoke.
+7. Require both `publish-to-pypi` and `verify-public-pypi-install` to be green before treating the release path as fully verified.
 8. Only then update release-specific public copy that depends on the new published artifact.
 
-A clean-environment smoke can use:
+For an independent manual re-check, use the exact published version rather than an unconstrained latest install:
 
 ```bash
+VERSION=1.0.0rc2
 python -m venv /tmp/ainir-pypi-check
 /tmp/ainir-pypi-check/bin/python -m pip install --upgrade pip
-/tmp/ainir-pypi-check/bin/python -m pip install ainir
+/tmp/ainir-pypi-check/bin/python -m pip install --no-cache-dir --index-url https://pypi.org/simple "ainir==$VERSION"
 cd /tmp
+/tmp/ainir-pypi-check/bin/python -m ainir demo
 /tmp/ainir-pypi-check/bin/ainir demo
 ```
 
@@ -104,7 +124,8 @@ For a new RC or final release:
 1. change the version/release identity in `src/ainir/_version.py` deliberately;
 2. run the normal AiNIR CI and distribution checks;
 3. review README/scope wording for the new release state;
-4. use `build-only` before selecting a publishing target.
+4. use `build-only` before selecting a publishing target;
+5. after production publishing, require the public-index smoke for the exact version.
 
 ## Package identity
 
