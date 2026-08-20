@@ -8,14 +8,14 @@ If you only want to understand whether AiNIR is relevant to you, do the first fo
 
 ## 1. Install
 
-Run from the repository root.
+Run from the repository root. The public demo only needs the package's runtime dependencies; contributor/test tooling is optional.
 
 ### macOS / Linux
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
+pip install -e .
 ```
 
 ### Windows PowerShell
@@ -23,8 +23,10 @@ pip install -e ".[dev]"
 ```powershell
 python -m venv .venv
 . .venv\Scripts\Activate.ps1
-pip install -e ".[dev]"
+pip install -e .
 ```
+
+If you plan to run the full test suite or contributor checks, install the development extras instead with `pip install -e ".[dev]"`.
 
 ## 2. Run the public demo
 
@@ -114,7 +116,12 @@ python -m ainir conformance run profiles/example-audit/profile.yaml
 
 ### I want MCP or tool-call preflight
 
-Read:
+Start with the guided examples:
+
+- [`examples/mcp_tool_call/README.md`](examples/mcp_tool_call/README.md)
+- [`examples/openai_function_tool/README.md`](examples/openai_function_tool/README.md)
+
+Then read the precise contracts:
 
 - [`docs/mcp_tool_call_profile.md`](docs/mcp_tool_call_profile.md)
 - [`docs/mcp_profile_authoring.md`](docs/mcp_profile_authoring.md)
