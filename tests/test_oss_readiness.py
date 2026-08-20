@@ -22,8 +22,8 @@ def test_public_governance_and_security_files_exist():
         ".github/ISSUE_TEMPLATE/bug.yml",
         ".github/ISSUE_TEMPLATE/conformance-case.yml",
         ".github/ISSUE_TEMPLATE/profile-proposal.yml",
-        "docs/development/baseline-2026-08-09.md",
-        "docs/development/p1-release-contracts-2026-08-10.md",
+        "docs/archive/development/baseline-2026-08-09.md",
+        "docs/archive/development/p1-release-contracts-2026-08-10.md",
     ]
     missing = [path for path in required if not (ROOT / path).is_file()]
     assert missing == []
