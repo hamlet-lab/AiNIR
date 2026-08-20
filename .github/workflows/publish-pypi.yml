@@ -27,10 +27,10 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.11'
-      - name: Install build tooling
+      - name: Install build and release-check dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install build
+          python -m pip install -c requirements.lock.txt build PyYAML
       - name: Run distribution contract check
         run: |
           python scripts/check_distribution_contracts.py \
