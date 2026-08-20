@@ -4,6 +4,8 @@ These examples are the fastest way to understand what AiNIR is trying to do.
 
 The public demo is intentionally small and closed-world: known workflow profiles are checked against registered semantic contracts, and unknown workflows are refused rather than guessed.
 
+If you already understand the demo and want to see how a host actually calls AiNIR before a tool handoff, start with [`integration_quickstart.py`](integration_quickstart.py) and the [`5-minute integration guide`](../docs/integration_quickstart.md).
+
 ## At a glance
 
 | Scenario | Proposal | Expected decision |
@@ -109,6 +111,7 @@ Passing the Trust Gate is not execution. The host runtime still owns authenticat
 
 AiNIR also contains bounded preflight examples for:
 
+- [`integration_quickstart.py`](integration_quickstart.py) — the smallest Python host-preflight integration using the bundled reviewed read-only profile;
 - [`mcp_tool_call/`](mcp_tool_call/) — MCP `tools/call` assessment without contacting or executing the server;
 - [`openai_function_tool/`](openai_function_tool/) — assessment of already-observed completed OpenAI function-call artifacts;
 - [`offline_evidence_provider/`](offline_evidence_provider/) — deterministic evidence-candidate validation without automatic Trust Gate promotion.
