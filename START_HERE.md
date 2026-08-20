@@ -4,18 +4,18 @@
 
 AiNIR is a bounded semantic trust layer for checking AI-generated workflow semantics before a host runtime is allowed to lower, hand off, or execute them.
 
-If you only want to understand whether AiNIR is relevant to you, do the first two steps below. You do **not** need to manually clone the repository just to run the bundled public demo. Clone the source only when you want to inspect individual example files, run focused Trust Gate checks against them, or contribute.
+If you only want to understand whether AiNIR is relevant to you, do the first two steps below. You do **not** need to clone the repository just to install AiNIR and run the bundled public demo. Clone the source only when you want to inspect individual example files, run focused Trust Gate checks against them, or contribute.
 
-## 1. Install without cloning
+## 1. Install from PyPI
 
-Requires Python 3.10+ and Git.
+Requires Python 3.10+.
 
 ### macOS / Linux
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install "git+https://github.com/hamlet-lab/ainir.git"
+python -m pip install ainir
 ```
 
 ### Windows PowerShell
@@ -23,8 +23,10 @@ python -m pip install "git+https://github.com/hamlet-lab/ainir.git"
 ```powershell
 python -m venv .venv
 . .venv\Scripts\Activate.ps1
-python -m pip install "git+https://github.com/hamlet-lab/ainir.git"
+python -m pip install ainir
 ```
+
+If an older or custom resolver refuses the RC prerelease, use `python -m pip install --pre ainir`.
 
 ## 2. Run the bundled public demo
 
@@ -55,7 +57,27 @@ AiNIR public demo: passed
 
 At this point you have seen the core behavior: **refuse unsupported or unsafe semantics, and allow a bounded safe path to move forward.**
 
-## 3. Clone the source if you want to inspect individual decisions
+## 3. Put AiNIR in front of a tool call
+
+If you want to move from the demo to a real host integration, use the [`5-minute integration quick start`](docs/integration_quickstart.md).
+
+It shows the intended handoff:
+
+```text
+model/API produces a proposed function call
+                ↓
+host supplies trusted auth/scope/consent facts
+                ↓
+          AiNIR preflight
+                ↓
+      passed / review / refused
+                ↓
+host revalidates and owns any real execution
+```
+
+The integration guide includes a copy-paste Python example using the bundled reviewed read-only profile. AiNIR does not call the OpenAI API, contact an MCP server, or execute the tool.
+
+## 4. Clone the source if you want to inspect individual decisions
 
 ```bash
 git clone https://github.com/hamlet-lab/ainir.git
@@ -96,7 +118,7 @@ python -m ainir trust evaluate examples/create_user_outbox_safe/draft.yaml --jso
 
 A passed decision may become eligible for a `TrustReceipt` and lowering. It still does not mean AiNIR itself executes the workflow.
 
-## 4. Pick your path
+## 5. Pick your path
 
 ### I want to understand the architecture
 
@@ -126,8 +148,9 @@ python -m ainir conformance run profiles/example-audit/profile.yaml
 
 ### I want MCP or tool-call preflight
 
-Start with the guided examples:
+Start with the five-minute path, then go deeper:
 
+- [`docs/integration_quickstart.md`](docs/integration_quickstart.md)
 - [`examples/mcp_tool_call/README.md`](examples/mcp_tool_call/README.md)
 - [`examples/openai_function_tool/README.md`](examples/openai_function_tool/README.md)
 
