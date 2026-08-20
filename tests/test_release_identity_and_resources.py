@@ -79,6 +79,25 @@ def test_public_schema_and_registry_copies_match_repository_contract_sources():
         assert read_registry_bytes(name) == root_bytes
 
 
+def test_packaged_public_demo_fixtures_match_repository_examples():
+    root_demo = ROOT / "examples"
+    packaged_demo = ROOT / "src" / "ainir" / "demo_examples"
+    manifest = json.loads((root_demo / "demo_manifest.json").read_text(encoding="utf-8"))
+
+    expected = {Path("demo_manifest.json")}
+    expected.update(Path(name) / "draft.yaml" for name in manifest["examples"])
+
+    packaged_files = {
+        path.relative_to(packaged_demo)
+        for path in packaged_demo.rglob("*")
+        if path.is_file() and path.name != "__init__.py"
+    }
+    assert packaged_files == expected
+
+    for relative in sorted(expected):
+        assert (packaged_demo / relative).read_bytes() == (root_demo / relative).read_bytes()
+
+
 def test_public_resource_api_is_allowlisted_and_deterministic():
     first = public_resource_manifest()
     second = public_resource_manifest()
