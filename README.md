@@ -81,29 +81,31 @@ AiNIR checks things such as:
 
 ## Quick start
 
-The bundled public demo travels with the installed package, so you do **not** need to manually clone the repository just to try `ainir demo`.
+The bundled public demo travels with the installed package, so you do **not** need to clone the repository just to try AiNIR.
 
 ### Fastest try — macOS / Linux
 
-Requires Python 3.10+ and Git.
+Requires Python 3.10+.
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install "git+https://github.com/hamlet-lab/ainir.git"
+python -m pip install ainir
 ainir demo --out-dir "${TMPDIR:-/tmp}/ainir_demo_results"
 ```
 
 ### Fastest try — Windows PowerShell
 
-Requires Python 3.10+ and Git.
+Requires Python 3.10+.
 
 ```powershell
 python -m venv .venv
 . .venv\Scripts\Activate.ps1
-python -m pip install "git+https://github.com/hamlet-lab/ainir.git"
+python -m pip install ainir
 ainir demo --out-dir "$env:TEMP\ainir_demo_results"
 ```
+
+If an older or custom resolver refuses the RC prerelease, use `python -m pip install --pre ainir`.
 
 The demo runs from the installed package and can be launched outside a source checkout.
 
@@ -119,6 +121,26 @@ python -m ainir trust evaluate examples/create_user_outbox_safe/draft.yaml --jso
 On Windows PowerShell, replace `/tmp/...` with `$env:TEMP\...`.
 
 Want the guided path? Start with [`START_HERE.md`](START_HERE.md).
+
+## Integrate in 5 minutes
+
+Want to put AiNIR in front of an actual function/tool call instead of only running the demo? Follow the [`5-minute integration quick start`](docs/integration_quickstart.md).
+
+The Python integration surface can sit at the handoff point between a completed model-produced call and your host:
+
+```python
+from ainir.openai_function_tool_adapter import bundled_openai_function_tool_adapter
+
+with bundled_openai_function_tool_adapter() as adapter:
+    preflight = adapter.assess(tool_definition, function_call, host_binding, host_input)
+
+if preflight["overall_status"] == "passed":
+    # The host may consider handoff after time-of-use revalidation.
+    # AiNIR has not executed the tool.
+    pass
+```
+
+The model/API-produced call stays a proposal. Authentication, authorization, resource scope, consent, transaction state, and other trusted facts must come from the host rather than from model output.
 
 ## Public examples
 
@@ -279,6 +301,7 @@ For the precise claim boundary, read [`docs/positioning_and_scope.md`](docs/posi
 Choose the path that matches what you want to do:
 
 - **Try AiNIR quickly:** [`START_HERE.md`](START_HERE.md)
+- **Integrate a tool call:** [`docs/integration_quickstart.md`](docs/integration_quickstart.md)
 - **Understand the architecture:** [`docs/README.md`](docs/README.md), [`docs/trust_gate.md`](docs/trust_gate.md), [`docs/artifact_contracts.md`](docs/artifact_contracts.md)
 - **Author profiles:** [`docs/profile_authoring.md`](docs/profile_authoring.md), [`docs/profile_conformance.md`](docs/profile_conformance.md)
 - **Understand evidence:** [`docs/evidence_provider_interface.md`](docs/evidence_provider_interface.md), [`docs/offline_evidence_providers.md`](docs/offline_evidence_providers.md)
