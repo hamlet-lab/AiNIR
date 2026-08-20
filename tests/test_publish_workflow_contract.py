@@ -57,7 +57,8 @@ def test_publish_workflow_verifies_installed_demo_before_publish() -> None:
 
     assert "scripts/check_distribution_contracts.py" in text
     assert "python -m build --sdist --wheel --outdir dist" in text
-    assert "metadata['Name'] == 'ainir-public-demo'" in text
+    assert "metadata['Name'] == 'ainir'" in text
+    assert "https://pypi.org/p/ainir" in text
     assert "-m ainir demo" in text
     assert "/bin/ainir\" demo" in text
     assert "needs: build" in text
