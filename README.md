@@ -23,6 +23,10 @@ Created by **Lee Yoon Kyu** under **AIOE**.
 
 ## See it in 30 seconds
 
+<p align="center">
+  <img src="assets/ainir-readme-short-demo.gif" alt="AiNIR Trust Gate demo showing a refused account deletion and a passed safe path" width="900">
+</p>
+
 An AI-generated draft proposes a permanent account deletion:
 
 ```yaml
@@ -50,6 +54,10 @@ AiNIR public demo: passed
 That is the core idea:
 
 **AI proposes. AiNIR checks whether the proposal has earned the right to proceed. The host still owns execution.**
+
+<p align="center">
+  <img src="assets/ainir-refused-vs-passed.gif" alt="Side-by-side AiNIR comparison of a refused destructive workflow and a passed bounded workflow" width="960">
+</p>
 
 ## Why this exists
 
@@ -126,6 +134,50 @@ AiNIR is useful when an AI system can propose actions that have consequences out
 
 AiNIR does **not** replace host authorization, sandboxing, policy enforcement, authentication, or runtime security. It sits before those controls as a semantic trust boundary.
 
+## MCP: put a semantic checkpoint before `tools/call`
+
+If an agent can propose an MCP tool call, a useful placement is:
+
+```mermaid
+flowchart LR
+    A[Agent / model] --> B[Proposed MCP tools/call]
+    B --> C[AiNIR preflight]
+    C -->|passed| D[Host revalidates]
+    C -->|review required / refused / invalid| E[Do not execute]
+    D --> F[MCP server / tool]
+```
+
+The bundled reference example proposes this call:
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "workspace.read_text",
+    "arguments": {"path": "docs/README.md"}
+  }
+}
+```
+
+The host-owned context separately says that the server is authenticated, schema validation passed, `cap.resource.read` is granted, the resource is inside `scope.workspace.docs`, and explicit consent is currently valid. AiNIR evaluates those bindings against the reviewed MCP profile instead of trusting the model or tool description alone.
+
+```bash
+python -m ainir mcp assess \
+  examples/mcp_tool_call/tool_descriptor.json \
+  examples/mcp_tool_call/tool_call.json \
+  examples/mcp_tool_call/transport_binding.json \
+  examples/mcp_tool_call/host_input.json \
+  --out-dir /tmp/ainir_mcp_assessment --json
+```
+
+For the reviewed `workspace.read_text` contract, the maximum decision is `passed`. A passed assessment still does **not** mean AiNIR contacted the MCP server or executed the tool: the host must revalidate authorization and resource identity at time of use.
+
+The same reference profile also demonstrates why semantic classification matters: reviewed writes require transaction and rollback bindings, while reviewed delete operations can require human review instead of silently becoming executable.
+
+See [`examples/mcp_tool_call/README.md`](examples/mcp_tool_call/README.md), [`docs/mcp_tool_call_profile.md`](docs/mcp_tool_call_profile.md), and [`docs/mcp_profile_authoring.md`](docs/mcp_profile_authoring.md).
+
+AiNIR also includes a host-owned adapter for completed OpenAI Responses `function_call` artifacts. It consumes already-observed JSON and does not call the OpenAI API, execute the function, or submit tool output. See [`docs/openai_function_tool_host_adapter.md`](docs/openai_function_tool_host_adapter.md).
+
 ## How it works
 
 ```mermaid
@@ -152,6 +204,18 @@ A few AiNIR terms in plain language:
 - **Lowering** — converting a verified semantic draft toward a host-consumable implementation form. Lowering is not execution.
 - **Profile** — a bounded, additive set of reviewed workflow semantics and conformance cases.
 
+## What makes AiNIR different from adjacent controls?
+
+| Control | Main question |
+|---|---|
+| JSON / schema validation | Is the data shaped correctly? |
+| Authentication / authorization | Who may access this resource? |
+| Sandbox / runtime isolation | Where may code run, and what can it touch? |
+| Policy engine | Does this request match configured policy rules? |
+| **AiNIR** | **Are the proposed semantics sufficiently evidenced and bounded to move toward execution?** |
+
+These layers are complementary. AiNIR is not presented as a replacement for the others.
+
 ## Tested, not merely claimed
 
 The public RC is intentionally closed-world and fail-closed.
@@ -173,35 +237,6 @@ python -m ainir conformance negative
 python -m ainir conformance golden
 python -m ainir conformance private-trial
 ```
-
-## MCP and tool-call preflight
-
-AiNIR includes a bounded, consumer-neutral MCP `tools/call` preflight profile. It assesses reviewed descriptors, effects, capabilities, host-observed authorization audience, resource scope, explicit consent, and transaction / rollback readiness **without contacting or executing an MCP server**.
-
-```bash
-python -m ainir mcp assess \
-  examples/mcp_tool_call/tool_descriptor.json \
-  examples/mcp_tool_call/tool_call.json \
-  examples/mcp_tool_call/transport_binding.json \
-  examples/mcp_tool_call/host_input.json \
-  --out-dir /tmp/ainir_mcp_assessment --json
-```
-
-AiNIR also includes a host-owned adapter for completed OpenAI Responses `function_call` artifacts. It consumes already-observed JSON and does not call the OpenAI API, execute the function, or submit tool output.
-
-See [`docs/mcp_tool_call_profile.md`](docs/mcp_tool_call_profile.md), [`docs/mcp_profile_authoring.md`](docs/mcp_profile_authoring.md), and [`docs/openai_function_tool_host_adapter.md`](docs/openai_function_tool_host_adapter.md).
-
-## What makes AiNIR different from adjacent controls?
-
-| Control | Main question |
-|---|---|
-| JSON / schema validation | Is the data shaped correctly? |
-| Authentication / authorization | Who may access this resource? |
-| Sandbox / runtime isolation | Where may code run, and what can it touch? |
-| Policy engine | Does this request match configured policy rules? |
-| **AiNIR** | **Are the proposed semantics sufficiently evidenced and bounded to move toward execution?** |
-
-These layers are complementary. AiNIR is not presented as a replacement for the others.
 
 ## Bounded public demo scope and guarantees
 
