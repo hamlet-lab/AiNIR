@@ -45,7 +45,25 @@ def test_docs_indexes_are_identical_and_surface_current_paths() -> None:
     assert docs_readme == docs_index
     assert "integration_quickstart.md" in docs_readme
     assert "PYPI_PUBLISHING.md" in docs_readme
-    assert "public_launch_candidate.md" in docs_readme
+    assert "archive/README.md" in docs_readme
+    assert "public_launch_candidate.md" not in docs_readme
+
+
+def test_historical_prose_is_grouped_under_docs_archive() -> None:
+    docs = ROOT / "docs"
+    archive = docs / "archive"
+
+    assert (archive / "README.md").is_file()
+    assert (archive / "development" / "README.md").is_file()
+    assert (archive / "phases" / "phase13_release_candidate_reassessment.md").is_file()
+    assert (archive / "phases" / "phase26_private_github_trial.md").is_file()
+    assert (archive / "release-history" / "public_launch_candidate.md").is_file()
+    assert (archive / "release-history" / "v1_rc_candidate_patch7.md").is_file()
+
+    assert not (docs / "development").exists()
+    assert not list(docs.glob("phase*.md"))
+    assert not list(docs.glob("v1_rc_candidate_patch*.md"))
+    assert not (docs / "public_launch_candidate.md").exists()
 
 
 def test_integration_quickstart_runs_without_execution() -> None:

@@ -15,7 +15,7 @@ def test_patch3_scope_docs_exist():
         "docs/executable_claim_semantics.md",
         "docs/verified_intent_packet_scope.md",
         "docs/v1_roadmap.md",
-        "docs/v1_rc_candidate_patch3.md",
+        "docs/archive/release-history/v1_rc_candidate_patch3.md",
     ]
     for rel in required:
         assert (ROOT / rel).exists(), rel

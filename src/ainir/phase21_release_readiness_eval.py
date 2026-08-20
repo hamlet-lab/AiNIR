@@ -92,7 +92,7 @@ def _public_boundary_check() -> ReadinessStep:
         "docs/pre_v1_status.md",
         "docs/trust_gate.md",
         "docs/trust_receipt_persistence.md",
-        "docs/phase20_trust_receipt_conformance.md",
+        "docs/archive/phases/phase20_trust_receipt_conformance.md",
     ]
     for item in required_files:
         if not (ROOT / item).exists():
