@@ -117,3 +117,5 @@ Want the guided path? Start with [`START_HERE.md`](START_HERE.md).
           git add README.md .github/workflows/packaged-demo-smoke.yml
           git commit -m "Document and verify no-clone quick start"
           git push
+
+# trigger: 2026-08-20
