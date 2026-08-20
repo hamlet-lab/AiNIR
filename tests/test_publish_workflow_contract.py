@@ -62,3 +62,11 @@ def test_publish_workflow_verifies_installed_demo_before_publish() -> None:
     assert "-m ainir demo" in text
     assert "/bin/ainir\" demo" in text
     assert "needs: build" in text
+
+
+def test_publish_workflow_installs_runtime_dependency_before_contract_check() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+
+    install = "python -m pip install -c requirements.lock.txt build PyYAML"
+    assert install in text
+    assert text.index(install) < text.index("python scripts/check_distribution_contracts.py")
