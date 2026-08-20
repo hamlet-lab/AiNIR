@@ -1,6 +1,6 @@
 # AiNIR public launch kit
 
-This document is a launch-facing companion to the technical README. It is designed to make AiNIR understandable quickly **without widening the public claim boundary**.
+This document is the maintained public-facing companion to the technical README. AiNIR is already public; the material below is for explaining, sharing, and evaluating the RC **without widening the public claim boundary**.
 
 ## Core positioning
 
@@ -8,9 +8,9 @@ This document is a launch-facing companion to the technical README. It is design
 
 > **Model output is a claim, not a fact.** AiNIR checks AI-generated workflow semantics before a host is allowed to move them toward execution.
 
-### Short repository description
+### Current repository description
 
-> Semantic preflight for AI-agent actions before execution.
+> Semantic trust layer that checks AI-agent actions and MCP tool calls before execution.
 
 ### Slightly fuller description
 
@@ -27,7 +27,7 @@ PASS ─────→ host may continue
 REFUSE ───→ stop + explain why
 ```
 
-AiNIR does not execute the action itself. The host still owns authentication, authorization, sandboxing, resource access, transaction enforcement, and the final side effect.
+AiNIR does not execute the action itself. The host still owns authentication, authorization, sandboxing, resource access, transaction enforcement, time-of-use revalidation, and the final side effect.
 
 ## 30-second explanation
 
@@ -41,38 +41,52 @@ AiNIR asks a different question **before execution**:
 
 The public demo shows both sides: destructive account deletion, real payments, raw reset-token persistence, and unsafe PII export are refused; a reviewed transaction-bound outbox path passes and can issue a replayable `TrustReceipt`.
 
-## Suggested GitHub metadata
+The quickest public path is:
+
+```bash
+python -m pip install ainir
+ainir demo
+```
+
+A bounded host-integration example is available in [`integration_quickstart.md`](integration_quickstart.md).
+
+## Current GitHub metadata
 
 ### Description
 
-`Semantic preflight for AI-agent actions before execution.`
+`Semantic trust layer that checks AI-agent actions and MCP tool calls before execution.`
 
 ### Topics
 
-Prioritize existing discovery language first:
+The live repository currently uses:
 
-- `ai-agents`
-- `agent-safety`
-- `llm`
-- `mcp`
-- `tool-calling`
-- `ai-security`
-- `runtime-safety`
 - `agent-governance`
+- `ai-agents`
+- `ai-safety`
+- `ai-security`
+- `conformance-testing`
+- `mcp`
 - `policy-as-code`
+- `pre-execution-validation`
+- `python`
 - `semantic-verification`
+- `tool-calling`
+- `tool-contracts`
+- `trust-layer`
 
-Avoid relying only on project-internal vocabulary for discovery.
+Keep [`github_repo_settings.md`](github_repo_settings.md) synchronized with the real repository instead of treating older launch-draft topic lists as canonical.
 
 ### Social preview
 
-Use `assets/ainir-social-preview.png` once the repository social-preview setting is updated.
+The intended artwork is `assets/ainir-social-preview.png`.
 
 Suggested preview copy:
 
 > **AiNIR**  
 > Model output is a claim, not a fact.  
-> Semantic preflight for AI-generated actions before execution.
+> Semantic trust before AI-agent execution.
+
+The file existing in the repository does not prove that GitHub is currently rendering it as the repository social preview. Verify the actual repository setting/UI separately.
 
 ## Show HN-style launch draft
 
@@ -110,7 +124,7 @@ If a model proposes `delete_user`, `charge_payment`, `export_pii`, or an MCP `to
 
 AiNIR treats the model output as a claim. The public implementation checks a bounded registry of reviewed workflows against effects, capabilities, evidence bindings, trusted host context, and transaction requirements. Unknown workflows fail closed.
 
-The README now has a short animated demo showing a destructive workflow refused next to a bounded safe path passing.
+The README has a short animated demo showing a destructive workflow refused next to a bounded safe path passing, and the public package can be tried without cloning the repository.
 
 I would especially value criticism around:
 
@@ -186,14 +200,14 @@ Avoid claims such as:
 - "AiNIR replaces authorization, sandboxes, or policy engines";
 - "a TrustReceipt proves the external side effect is safe".
 
-## Launch sequence
+## Post-launch sequence
 
-1. Merge and re-check the public README rendering.
-2. Apply the repository description and discovery topics recorded above.
-3. Set `assets/ainir-social-preview.png` as the GitHub social preview.
-4. Verify the minimal Quick Start from a clean environment.
-5. Publish one problem-led launch post, not several simultaneous copies.
-6. Watch questions and confusion points before rewriting the technical model.
-7. Prefer real integration attempts, issues, and forks over star count alone when deciding what to improve next.
+1. Keep the public README, PyPI onboarding, and five-minute integration example reproducible from a clean environment.
+2. Keep GitHub description/topics synchronized with [`github_repo_settings.md`](github_repo_settings.md).
+3. Treat social-preview rendering as a separate UI setting and verify it rather than assuming the committed asset is active.
+4. Publish one problem-led community post at a time instead of duplicating the same launch everywhere simultaneously.
+5. Watch real integration attempts, issues, confusion points, and forks before rewriting the technical model.
+6. Preserve the bounded RC/non-production wording until a deliberate later release changes it.
+7. Prefer concrete integration evidence over star count alone when deciding what to improve next.
 
 The goal is not to simplify AiNIR's architecture. The goal is to make the first useful idea visible before asking a reader to understand the architecture.
