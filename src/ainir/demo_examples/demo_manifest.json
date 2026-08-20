@@ -1,0 +1,10 @@
+{
+  "version": "v1_0_rc_candidate_patch7",
+  "examples": {
+    "create_user_outbox_safe": {"expected_status": "passed"},
+    "account_deletion_hard_delete_blocked": {"expected_status": "blocked"},
+    "order_payment_real_payment_blocked": {"expected_status": "blocked"},
+    "password_reset_raw_token_blocked": {"expected_status": "blocked"},
+    "pii_export_raw_pii_blocked": {"expected_status": "blocked"}
+  }
+}
