@@ -4,16 +4,22 @@ AiNIR's public Python distribution is named **`ainir`**. The Python package and 
 
 This document describes the bounded RC publishing path. It does not change AiNIR's pre-v1 / non-production claim boundary.
 
-## Expected install experience after publication
+## Public install experience
+
+The first-run path is now:
 
 ```bash
-python -m pip install --pre ainir
+python -m pip install ainir
 ainir demo
 ```
 
-The `--pre` flag makes the RC intent explicit. The current package version is sourced from `src/ainir/_version.py`.
+The current release is an RC. If an older or custom resolver refuses the prerelease, use:
 
-Until the first PyPI publication succeeds, the public README intentionally keeps the verified GitHub-source install path instead of advertising a package that is not yet available.
+```bash
+python -m pip install --pre ainir
+```
+
+The package version is sourced from `src/ainir/_version.py`.
 
 ## Release workflow
 
@@ -29,6 +35,7 @@ The workflow does not trigger on `push`, tags, or GitHub Releases. A normal repo
 
 Before any publishing job can run, the build job:
 
+- installs the locked runtime dependency needed by the release checks;
 - runs the existing distribution contract suite;
 - builds exactly one wheel and one sdist;
 - checks that wheel metadata says `ainir` and matches the source release version;
@@ -41,7 +48,7 @@ Before any publishing job can run, the build job:
 
 The workflow uses GitHub OIDC Trusted Publishing. It does **not** require a long-lived PyPI API token in GitHub Secrets.
 
-The production PyPI pending Trusted Publisher is configured for:
+The production publisher identity is:
 
 - PyPI project: `ainir`
 - GitHub owner: `hamlet-lab`
@@ -49,13 +56,13 @@ The production PyPI pending Trusted Publisher is configured for:
 - Workflow filename: `publish-pypi.yml`
 - Environment: `pypi`
 
-A pending Trusted Publisher allows the first successful trusted upload to create the project. It does not reserve the project name before that upload.
+The initial production publication used this trusted-publishing path. Future releases should preserve the same identity unless the release process is deliberately migrated.
 
 TestPyPI is a separate service. If the optional `testpypi` path is used, configure the equivalent publisher on TestPyPI with environment `testpypi`; production PyPI configuration does not automatically configure TestPyPI.
 
 ## GitHub environments
 
-The production job declares the GitHub environment `pypi`. If the repository does not already have that environment, GitHub can create an unprotected environment when the job first references it; for a deliberate release process, configure the environment explicitly before production publishing.
+The production job declares the GitHub environment `pypi`.
 
 Recommended for `pypi`:
 
@@ -65,27 +72,28 @@ Recommended for `pypi`:
 
 If TestPyPI is used, apply the same pattern to a `testpypi` environment.
 
-## First publication sequence
+## Release sequence for the next version
 
-1. Merge the distribution-name change only after normal repository CI is green.
-2. Run `publish-pypi` with target `build-only` and confirm the build/verification job succeeds.
-3. Optionally configure TestPyPI Trusted Publishing and run the `testpypi` target.
-4. Confirm the production PyPI pending publisher still matches `hamlet-lab/AiNIR`, `publish-pypi.yml`, and environment `pypi`.
-5. Run `publish-pypi` with target `pypi`.
-6. Verify that the new PyPI project is `ainir` and that version `1.0.0rc2` is present.
-7. Verify the public install path in a clean environment:
+1. Change the release identity in `src/ainir/_version.py` deliberately. Never reuse an already-published version.
+2. Run normal repository CI and review the public scope/release wording.
+3. Run `publish-pypi` with target `build-only` and require a green build/verification job.
+4. Optionally publish the verified artifact to TestPyPI.
+5. Re-check the production Trusted Publisher identity and GitHub `pypi` environment.
+6. Run `publish-pypi` with target `pypi`.
+7. Confirm the PyPI project/version and run a clean-environment install smoke.
+8. Only then update release-specific public copy that depends on the new published artifact.
+
+A clean-environment smoke can use:
 
 ```bash
 python -m venv /tmp/ainir-pypi-check
 /tmp/ainir-pypi-check/bin/python -m pip install --upgrade pip
-/tmp/ainir-pypi-check/bin/python -m pip install --pre ainir
+/tmp/ainir-pypi-check/bin/python -m pip install ainir
 cd /tmp
 /tmp/ainir-pypi-check/bin/ainir demo
 ```
 
 On Windows, use the corresponding virtual-environment executables under `Scripts\\`.
-
-Only after that verification should README/START_HERE switch their fastest-install path from the GitHub source URL to PyPI.
 
 ## Release identity rules
 
@@ -100,10 +108,10 @@ For a new RC or final release:
 
 ## Package identity
 
-The public names are intentionally aligned for the first PyPI publication:
+The public names are intentionally aligned:
 
 - PyPI distribution: `ainir`
 - Python package: `ainir`
 - console command: `ainir`
 
-This keeps the eventual install experience simple: `python -m pip install --pre ainir`, followed by `ainir demo`.
+That keeps the default user experience simple: `python -m pip install ainir`, followed by `ainir demo`.
