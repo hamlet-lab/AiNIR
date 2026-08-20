@@ -9,7 +9,8 @@ All notable public changes are recorded here. AiNIR remains a bounded release ca
 - reconciled current-state documentation after the public GitHub/PyPI launch so pre-publication private-trial instructions are no longer presented as the active release state;
 - rebuilt `docs/README.md` / `docs/index.md` around the current PyPI onboarding, five-minute integration path, RC boundary, and maintained release docs;
 - synchronized GitHub-settings and public-launch documentation with the live repository description/topics while keeping social-preview rendering explicitly separate from the committed asset;
-- clarified that AiNIR now includes bounded non-executing host-integration examples without claiming a production downstream execution runtime.
+- clarified that AiNIR now includes bounded non-executing host-integration examples without claiming a production downstream execution runtime;
+- production PyPI publishing now carries the exact source release version into a separate post-upload runner that re-installs that version from the public PyPI index, verifies installed metadata, and runs both module and console demos outside a source checkout.
 
 ### Fixed
 
@@ -89,8 +90,7 @@ All notable public changes are recorded here. AiNIR remains a bounded release ca
 - add cryptographic registry-migration authorization and externally reviewed governance;
 - add public-key evidence issuer identity and a separately reviewed ledger-promotion/governance contract;
 - externally review the bounded MCP profile and add separately governed profiles without introducing an execution runtime;
-- add externally reviewed MCP server identity/provenance, complete schema evaluation, and production host authorization adapters without moving execution into AiNIR core;
-- add a separately reviewed post-publication smoke path that verifies a newly published version from the public package index.
+- add externally reviewed MCP server identity/provenance, complete schema evaluation, and production host authorization adapters without moving execution into AiNIR core.
 
 ### Release boundary
 
