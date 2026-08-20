@@ -90,7 +90,9 @@ def test_packaged_public_demo_fixtures_match_repository_examples():
     packaged_files = {
         path.relative_to(packaged_demo)
         for path in packaged_demo.rglob("*")
-        if path.is_file() and path.name != "__init__.py"
+        if path.is_file()
+        and path.name != "__init__.py"
+        and "__pycache__" not in path.parts
     }
     assert packaged_files == expected
 
