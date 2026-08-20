@@ -24,6 +24,7 @@ Created by **Lee Yoon Kyu** under **AIOE**.
 
 ## See it in 30 seconds
 
+<!-- Demo GIF contract: keep the animation focused on the stable REFUSE/PASS semantic story. Mutable install commands and release/version guidance belong in Markdown, not in the GIF. -->
 <p align="center">
   <img src="assets/ainir-readme-short-demo.gif" alt="AiNIR Trust Gate demo showing a refused account deletion and a passed safe path" width="900">
 </p>
@@ -56,6 +57,7 @@ That is the core idea:
 
 **AI proposes. AiNIR checks whether the proposal has earned the right to proceed. The host still owns execution.**
 
+<!-- Demo GIF contract: semantic comparison only; current package/install/release metadata stays in surrounding Markdown. -->
 <p align="center">
   <img src="assets/ainir-refused-vs-passed.gif" alt="Side-by-side AiNIR comparison of a refused destructive workflow and a passed bounded workflow" width="960">
 </p>
@@ -141,6 +143,23 @@ if preflight["overall_status"] == "passed":
 ```
 
 The model/API-produced call stays a proposal. Authentication, authorization, resource scope, consent, transaction state, and other trusted facts must come from the host rather than from model output.
+
+## Repository map
+
+The repository can look larger than the runtime because AiNIR keeps semantic contracts, conformance evidence, packaged resources, and release checks explicit instead of hiding them inside one implementation file.
+
+| Path | What it is | Read it when... |
+|---|---|---|
+| `src/ainir/` | Python implementation and packaged public resources | you are integrating or changing the engine |
+| `examples/` | runnable public workflows and integration examples | you want to try or adapt AiNIR |
+| `docs/` | maintained architecture, integration, RC, and release guidance | you want the current design/usage docs |
+| `docs/archive/` | historical phase notes, superseded RC patch notes, development lineage | you are tracing how a current contract evolved |
+| `schemas/` + `registries/` | explicit public artifact and semantic contracts | you are reviewing or extending the trust vocabulary |
+| `fixtures/` | bounded conformance/evidence inputs | you are reviewing deterministic test cases |
+| `tests/` + `scripts/` | regression, conformance, distribution, and release verification | you are maintaining or auditing the release |
+| `release/` + `review/` | frozen RC identity and review artifacts | you are auditing release provenance |
+
+Some executable regression modules and commands still carry historical `phase*` names. They remain in place because the RC suite still runs them; only historical prose has been moved out of the maintained docs surface.
 
 ## Public examples
 
@@ -307,7 +326,8 @@ Choose the path that matches what you want to do:
 - **Understand evidence:** [`docs/evidence_provider_interface.md`](docs/evidence_provider_interface.md), [`docs/offline_evidence_providers.md`](docs/offline_evidence_providers.md)
 - **Understand replay and registry evolution:** [`docs/trust_receipt_persistence.md`](docs/trust_receipt_persistence.md), [`docs/trust_receipt_registry_evolution.md`](docs/trust_receipt_registry_evolution.md)
 - **Review the RC scope:** [`docs/v1_rc_candidate.md`](docs/v1_rc_candidate.md), [`docs/v1_rc_scope.md`](docs/v1_rc_scope.md), [`docs/v1_roadmap.md`](docs/v1_roadmap.md)
-- **Prepare public launch copy:** [`docs/public_launch_kit.md`](docs/public_launch_kit.md)
+- **Maintain public-facing copy:** [`docs/public_launch_kit.md`](docs/public_launch_kit.md)
+- **Trace historical development:** [`docs/archive/README.md`](docs/archive/README.md)
 - **Contribute:** [`CONTRIBUTING.md`](CONTRIBUTING.md), [`PROTECTED_INVARIANTS.md`](PROTECTED_INVARIANTS.md), [`SECURITY.md`](SECURITY.md)
 
 ## Author and license
