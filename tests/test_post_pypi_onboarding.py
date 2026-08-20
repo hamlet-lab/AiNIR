@@ -22,6 +22,32 @@ def test_first_run_onboarding_uses_pypi_and_links_integration_guide() -> None:
     assert "docs/integration_quickstart.md" in start
 
 
+def test_current_status_docs_do_not_revert_to_prepublication_state() -> None:
+    rc_candidate = (ROOT / "docs" / "v1_rc_candidate.md").read_text(encoding="utf-8")
+    pre_v1 = (ROOT / "docs" / "pre_v1_status.md").read_text(encoding="utf-8")
+    maintenance = (ROOT / "docs" / "github_launch_checklist.md").read_text(encoding="utf-8")
+
+    assert "public_repository: live" in rc_candidate
+    assert "public_release_state: published_rc" in rc_candidate
+    assert "pending_private_github_trial" not in rc_candidate
+
+    assert "public_release_type: published bounded demo" in pre_v1
+    assert "suitable for private GitHub trial" not in pre_v1
+
+    assert "Current-state note" in maintenance
+    assert "Only upload to a private GitHub repository" not in maintenance
+
+
+def test_docs_indexes_are_identical_and_surface_current_paths() -> None:
+    docs_readme = (ROOT / "docs" / "README.md").read_text(encoding="utf-8")
+    docs_index = (ROOT / "docs" / "index.md").read_text(encoding="utf-8")
+
+    assert docs_readme == docs_index
+    assert "integration_quickstart.md" in docs_readme
+    assert "PYPI_PUBLISHING.md" in docs_readme
+    assert "public_launch_candidate.md" in docs_readme
+
+
 def test_integration_quickstart_runs_without_execution() -> None:
     namespace = runpy.run_path(str(ROOT / "examples" / "integration_quickstart.py"))
 
