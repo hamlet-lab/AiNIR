@@ -43,9 +43,10 @@ jobs:
           python - <<'PY'
           from email.parser import BytesParser
           from pathlib import Path
+          from runpy import run_path
           from zipfile import ZipFile
-          from ainir._version import __version__
 
+          source_version = run_path('src/ainir/_version.py')['__version__']
           wheels = sorted(Path('dist').glob('*.whl'))
           sdists = sorted(Path('dist').glob('*.tar.gz'))
           assert len(wheels) == 1, wheels
@@ -54,7 +55,7 @@ jobs:
               metadata_name = next(name for name in zf.namelist() if name.endswith('.dist-info/METADATA'))
               metadata = BytesParser().parsebytes(zf.read(metadata_name))
           assert metadata['Name'] == 'ainir-public-demo', metadata['Name']
-          assert metadata['Version'] == __version__, (metadata['Version'], __version__)
+          assert metadata['Version'] == source_version, (metadata['Version'], source_version)
           print(f"verified {metadata['Name']} {metadata['Version']}")
           PY
       - name: Install wheel into a fresh environment and run demo outside checkout
