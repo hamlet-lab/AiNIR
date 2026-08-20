@@ -1,5 +1,6 @@
 name: enable-packaged-demo
 
+# one-shot migration trigger
 on:
   push:
     branches:
