@@ -12,7 +12,14 @@ maintainers = [{name = "Lee Yoon Kyu"}]
 requires-python = ">=3.10"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE", "AUTHORS.md"]
+keywords = ["ai-agents", "agent-safety", "mcp", "tool-calling", "semantic-verification"]
 dependencies = ["PyYAML>=6"]
+
+[project.urls]
+Homepage = "https://github.com/hamlet-lab/ainir"
+Repository = "https://github.com/hamlet-lab/ainir"
+Issues = "https://github.com/hamlet-lab/ainir/issues"
+Documentation = "https://github.com/hamlet-lab/ainir#readme"
 
 [project.scripts]
 ainir = "ainir.entrypoint:main"
