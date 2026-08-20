@@ -11,7 +11,8 @@ policies:
 claims:
 - id: claim.create_user_uses_outbox
   status: verified
-  statement: CreateUser inserts a WelcomeEmailRequested outbox event instead of sending real email directly.
+  statement: CreateUser inserts a WelcomeEmailRequested outbox event instead of sending
+    real email directly.
   evidence:
   - id: evidence.demo.safe_outbox
     kind: verifier_report
