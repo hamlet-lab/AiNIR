@@ -249,7 +249,7 @@ def _scan_packaging_cleanliness(work_root: Path) -> dict[str, Any]:
         'src/ainir/_version.py', 'src/ainir/resources.py',
         'src/ainir/schemas/verified_intent_packet.schema.json',
         'docs/distribution_contracts.md',
-        'docs/development/p1-release-contracts-2026-08-10.md',
+        'docs/archive/development/p1-release-contracts-2026-08-10.md',
         'scripts/check_distribution_contracts.py',
     ]
     for rel in required_files:
