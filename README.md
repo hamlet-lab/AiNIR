@@ -243,7 +243,7 @@ python -m ainir conformance private-trial
 
 ## Bounded public demo scope and guarantees
 
-This repository is a **bounded v1.0 RC candidate public demo**. It is **not a v1.0 final** and **not a production runtime**.
+This repository is a **bounded pre-v1 v1.0 RC candidate public demo**. It is **not a v1.0 final** and **not a production runtime**.
 
 The current public implementation is intentionally **closed-world**. Its **workflow registry** recognizes a bounded set of reviewed workflows; unknown workflows are refused instead of guessed.
 
