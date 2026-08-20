@@ -101,6 +101,28 @@ jobs:
           python -m ainir registry snapshot --evolution --out "$RUNNER_TEMP/ainir-registry-snapshot.json" --json
           python -m ainir registry diff "$RUNNER_TEMP/ainir-registry-snapshot.json" "$RUNNER_TEMP/ainir-registry-snapshot.json" --json
 
+  runtime-only-smoke:
+    name: runtime-only-quickstart-smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: requirements.lock.txt
+      - name: Install runtime package only
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -c requirements.lock.txt -e .
+      - name: Verify documented quick-start path without dev extras
+        run: |
+          python -m ainir --help
+          python -m ainir demo --out-dir "$RUNNER_TEMP/ainir-runtime-demo"
+          python -m ainir trust evaluate examples/create_user_outbox_safe/draft.yaml --json --out-dir "$RUNNER_TEMP/ainir-runtime-trust-gate"
+
   platform-smoke:
     name: ${{ matrix.os }}-distribution-smoke
     runs-on: ${{ matrix.os }}
