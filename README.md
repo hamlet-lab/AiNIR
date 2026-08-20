@@ -243,7 +243,7 @@ python -m ainir conformance private-trial
 
 ## Bounded public demo scope and guarantees
 
-This repository is a **bounded pre-v1 v1.0 RC candidate public demo**. It is **not a v1.0 final** and **not a production runtime**.
+This repository is a **pre-v1, bounded v1.0 RC candidate public demo**. It is **not a v1.0 final** and **not a production runtime**.
 
 The current public implementation is intentionally **closed-world**. Its **workflow registry** recognizes a bounded set of reviewed workflows; unknown workflows are refused instead of guessed.
 
@@ -277,6 +277,7 @@ Choose the path that matches what you want to do:
 - **Understand evidence:** [`docs/evidence_provider_interface.md`](docs/evidence_provider_interface.md), [`docs/offline_evidence_providers.md`](docs/offline_evidence_providers.md)
 - **Understand replay and registry evolution:** [`docs/trust_receipt_persistence.md`](docs/trust_receipt_persistence.md), [`docs/trust_receipt_registry_evolution.md`](docs/trust_receipt_registry_evolution.md)
 - **Review the RC scope:** [`docs/v1_rc_candidate.md`](docs/v1_rc_candidate.md), [`docs/v1_rc_scope.md`](docs/v1_rc_scope.md), [`docs/v1_roadmap.md`](docs/v1_roadmap.md)
+- **Prepare public launch copy:** [`docs/public_launch_kit.md`](docs/public_launch_kit.md)
 - **Contribute:** [`CONTRIBUTING.md`](CONTRIBUTING.md), [`PROTECTED_INVARIANTS.md`](PROTECTED_INVARIANTS.md), [`SECURITY.md`](SECURITY.md)
 
 ## Author and license
