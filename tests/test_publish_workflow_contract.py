@@ -70,3 +70,25 @@ def test_publish_workflow_installs_runtime_dependency_before_contract_check() ->
     install = "python -m pip install -c requirements.lock.txt build PyYAML"
     assert install in text
     assert text.index(install) < text.index("python scripts/check_distribution_contracts.py")
+
+
+def test_production_publish_is_followed_by_exact_public_index_smoke() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+
+    assert "release_version: ${{ steps.release-version.outputs.version }}" in text
+    assert "name: verify-public-pypi-install" in text
+    assert "needs: [build, publish-pypi]" in text
+    assert "inputs.target == 'pypi' && needs.publish-pypi.result == 'success'" in text
+    assert "AINIR_RELEASE_VERSION: ${{ needs.build.outputs.release_version }}" in text
+    assert "--index-url https://pypi.org/simple" in text
+    assert '"ainir==$AINIR_RELEASE_VERSION"' in text
+    assert "--no-cache-dir" in text
+    assert "for attempt in 1 2 3 4 5 6" in text
+    assert "from importlib.metadata import version" in text
+
+    post_publish = text.split("\n  verify-pypi:", 1)[1]
+    assert "actions/checkout@" not in post_publish
+    assert "actions/download-artifact@" not in post_publish
+    assert "dist/*.whl" not in post_publish
+    assert "-m ainir demo" in post_publish
+    assert '"$AINIR" demo' in post_publish
