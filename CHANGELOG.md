@@ -1,12 +1,25 @@
 # Changelog
 
-All notable public changes will be recorded here. AiNIR remains a bounded release candidate, not a v1.0 final release or production runtime.
+All notable public changes are recorded here. AiNIR remains a bounded release candidate, not a v1.0 final release or production runtime.
 
 ## Unreleased
 
+### Changed
+
+- reconciled current-state documentation after the public GitHub/PyPI launch so pre-publication private-trial instructions are no longer presented as the active release state;
+- rebuilt `docs/README.md` / `docs/index.md` around the current PyPI onboarding, five-minute integration path, RC boundary, and maintained release docs;
+- synchronized GitHub-settings and public-launch documentation with the live repository description/topics while keeping social-preview rendering explicitly separate from the committed asset;
+- clarified that AiNIR now includes bounded non-executing host-integration examples without claiming a production downstream execution runtime.
+
+### Fixed
+
+- packaged public-demo fixtures are kept byte-for-byte aligned with their repository example sources and guarded by a regression check.
+
+## 1.0.0rc2
+
 ### Added
 
-- fixed-semantics read-only external MCP profile scaffold with file-bound, root-confined fixtures;
+- fixed-semantics read-only external MCP profile scaffolding with file-bound, root-confined fixtures;
 - generic bundled-or-external MCP conformance runner while keeping internal scenario shortcuts private to the bundled profile;
 - stable OpenAI function-call binding and function-tool preflight contracts with packaged schemas;
 - host-owned adapter for completed Responses function-call JSON with exact reviewed schema binding and no SDK/API/execution surface;
@@ -17,15 +30,20 @@ All notable public changes will be recorded here. AiNIR remains a bounded releas
 - public scope, protected invariants, security reporting, support, maintainer, agent, and pull-request guidance;
 - reproducible baseline report for the 2026-08-09 uploaded source snapshot;
 - single-source Python release identity for `1.0.0rc2`;
+- public Python distribution identity aligned as `ainir`, with the Python package and console command also named `ainir`;
 - packaged public schema resources and supported `ainir.resources` accessors;
 - deterministic public-resource manifests with SHA-256 metadata;
 - wheel/sdist build, clean-wheel install, Trust Gate, and TrustReceipt replay contract checks;
 - Python 3.10–3.13 compatibility and Windows/macOS distribution smoke workflows;
+- manual-only PyPI/TestPyPI publishing workflow with GitHub OIDC Trusted Publishing and a safe default `build-only` target;
+- packaged `ainir demo` resources that run outside a repository checkout;
+- PyPI-first onboarding through `python -m pip install ainir` and the bundled `ainir demo` path;
+- a bounded five-minute host-integration quick start using the existing reviewed non-executing OpenAI/MCP adapter;
 - phase-independent `trust`, `receipt`, `profile`, `conformance`, and `registry` CLI groups;
 - stable Trust Gate decision, TrustReceipt, replay-report, profile-manifest, conformance-pack, and conformance-report identifiers;
 - supported canonical JSON, artifact validation, stable/legacy receipt conversion, and receipt verification APIs;
 - hidden one-RC compatibility routing for historical flat and phase-tagged commands;
-- read-only bundled profile and registry inspection commands.
+- read-only bundled profile and registry inspection commands;
 - Profile Manifest v1, Conformance Pack v1, and Conformance Report v1 schemas and runtime contracts;
 - bundled `ainir.public-demo.v1` workflow profile over the existing public registries and corpora;
 - additive `profile init`, `validate`, `inspect`, and workflow-profile listing commands;
@@ -39,39 +57,41 @@ All notable public changes will be recorded here. AiNIR remains a bounded releas
 - installed-wheel and cross-platform distribution checks for registry evolution and replay modes;
 - six stable offline EvidenceProvider artifact contracts and packaged JSON Schemas;
 - fixture, root-confined file, and local HMAC-signed bundle provider adapters;
-- host-key-based independent signature recomputation, exact bundle-record
-  binding, and policy-bounded revocation freshness;
+- host-key-based independent signature recomputation, exact bundle-record binding, and policy-bounded revocation freshness;
 - independent issuer, claim, subject, validity, revocation, reliability, policy, and integrity validation;
 - `evidence bundle`, `evidence policy`, and `evidence resolve` CLI commands;
-- installed-wheel and Phase 30 readiness checks that keep provider candidates out of the Trust Gate ledger.
-- six MCP tool-call preflight contracts and packaged JSON Schemas;
-- bundled `ainir.mcp.reference.workspace.v1` profile with exact descriptor/schema/effect/capability bindings;
-- non-executing host-owned MCP reference adapter and `mcp profile`, `normalize`, `assess`, and `conformance` CLI commands;
-- 26-case deterministic MCP conformance pack covering authorization audience, consent, capabilities, resource paths, credentials, transactions, rollback, annotations, Tasks, and multi-round input refusal;
-- Phase 30 and installed-wheel verification preserving the P5 registry hash and no-execution boundary.
+- installed-wheel and Phase 30 readiness checks that keep provider candidates out of the Trust Gate ledger;
 - six stable MCP tool-call preflight artifact contracts and packaged schemas;
+- bundled `ainir.mcp.reference.workspace.v1` profile with exact descriptor/schema/effect/capability bindings;
 - consumer-neutral reviewed workspace-tool profile with a host-owned, non-executing adapter;
 - exact descriptor/schema/effect/capability, audience, resource, consent, transaction, and rollback bindings;
 - destructive-call `review_required` ceiling and explicit refusal of MCP Task/multi-round input in P6;
-- 26-case deterministic MCP conformance pack plus CLI, Phase 30, and installed-wheel checks.
+- 26-case deterministic MCP conformance pack covering authorization audience, consent, capabilities, resource paths, credentials, transactions, rollback, annotations, Tasks, and multi-round input refusal;
+- Phase 30 and installed-wheel verification preserving the P5 registry hash and no-execution boundary.
 
 ### Fixed
 
-- P7 host-source artifacts now enforce the public canonical JSON byte and depth bounds before normalization;
+- P7 host-source artifacts enforce the public canonical JSON byte and depth bounds before normalization;
 - external MCP conformance no longer masks unexpected programming exceptions as an expected `invalid` case;
 - Phase 26 CI scanning no longer rejects a valid constrained pip install because of option ordering;
-- README expected output now matches the current payment-refusal finding count;
+- README expected output matches the current payment-refusal finding count;
 - wheel metadata no longer reports the unrelated `0.1.0` version;
 - public schemas are no longer omitted from built distributions;
 - private npm metadata is clearly separated from the Python release identity;
 - current documentation and private-trial commands no longer require historical phase names;
 - stable and legacy receipts both preserve exact replay and receipt identity;
 - the installed-wheel profile/conformance distribution check no longer collides with its own `passed` argument;
-- packaging metadata now uses an SPDX license expression and explicit license files without the deprecated license table.
+- packaging metadata uses an SPDX license expression and explicit license files without the deprecated license table;
+- the manual PyPI `build-only` release check installs the runtime dependency required by distribution-contract probes before importing AiNIR modules.
 
 ### Known follow-up work
 
 - add cryptographic registry-migration authorization and externally reviewed governance;
-- add public-key evidence issuer identity and a separately reviewed ledger-promotion/governance contract.
-- externally review the bounded MCP profile and add separately governed profiles without introducing an execution runtime.
-- add externally reviewed MCP server identity/provenance, complete schema evaluation, and production host authorization adapters without moving execution into AiNIR core.
+- add public-key evidence issuer identity and a separately reviewed ledger-promotion/governance contract;
+- externally review the bounded MCP profile and add separately governed profiles without introducing an execution runtime;
+- add externally reviewed MCP server identity/provenance, complete schema evaluation, and production host authorization adapters without moving execution into AiNIR core;
+- add a separately reviewed post-publication smoke path that verifies a newly published version from the public package index.
+
+### Release boundary
+
+`1.0.0rc2` is a public release candidate and bounded demo. It is not v1.0 final, does not execute external effects, does not verify arbitrary AI-generated code, and does not replace host authorization, sandboxing, or time-of-use enforcement.

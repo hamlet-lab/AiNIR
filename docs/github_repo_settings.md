@@ -1,69 +1,83 @@
-# Suggested GitHub Repository Settings
+# Current GitHub Repository Settings
 
-## Repository name
+This document records the public settings that should match the live `hamlet-lab/AiNIR` repository. It is a maintenance reference, not a launch-time suggestion list.
 
-`ainir`
+## Repository identity
+
+```text
+owner: hamlet-lab
+repository: AiNIR
+visibility: public
+default_branch: main
+license: Apache-2.0
+```
 
 ## Description
 
-Recommended public description:
+Current public description:
 
-> Semantic preflight for AI-agent actions before execution.
+> Semantic trust layer that checks AI-agent actions and MCP tool calls before execution.
 
-This is intentionally easier to discover and understand than the internal architectural definition. The README carries the more precise bounded-RC scope.
+Keep this synchronized with the live repository unless a deliberate positioning change is made.
 
 ## Website
 
-Leave blank at first, or link to a future project page.
+No project website is currently required. A future project page can be added deliberately without changing the technical claim boundary.
 
 ## Topics
 
-Recommended discovery topics, ordered from broad existing language toward AiNIR-specific language:
+Current repository topics:
 
-- `ai-agents`
-- `agent-safety`
-- `ai-safety`
-- `llm`
-- `mcp`
-- `tool-calling`
-- `ai-security`
-- `runtime-safety`
 - `agent-governance`
-- `semantic-verification`
+- `ai-agents`
+- `ai-safety`
+- `ai-security`
+- `conformance-testing`
+- `mcp`
 - `policy-as-code`
-- `intermediate-representation`
-- `semantic-ir`
+- `pre-execution-validation`
 - `python`
+- `semantic-verification`
+- `tool-calling`
+- `tool-contracts`
+- `trust-layer`
 
-The intent is to let people discover AiNIR using terms they already know before asking them to learn AiNIR-specific vocabulary.
+These are the maintained discovery labels. Do not silently replace them with older launch-draft topics such as `llm`, `runtime-safety`, `semantic-ir`, or `intermediate-representation` unless the repository metadata is intentionally changed too.
+
+## Merge and branch settings
+
+Current repository behavior includes:
+
+```text
+allow_auto_merge: false
+delete_branch_on_merge: false
+```
+
+Branch cleanup therefore remains an explicit maintainer action rather than an automatic merge side effect.
 
 ## Social preview
 
-Use [`../assets/ainir-social-preview.png`](../assets/ainir-social-preview.png) as the repository social-preview artwork.
+The repository contains [`../assets/ainir-social-preview.png`](../assets/ainir-social-preview.png) as the intended social-preview artwork.
 
-The asset uses the short public message:
+The asset communicates:
 
 > **Model output is a claim, not a fact.**
 >
 > AI proposes. AiNIR checks whether the proposal has earned the right to proceed.
 
-It also shows the Trust Gate as a real branch: a passing proposal may continue to host-controlled execution, while a refused proposal stops and is explained.
+The presence of the asset in Git does not prove that GitHub's repository-level social-preview setting is currently rendering it. Verify the actual preview in the GitHub UI whenever that setting matters.
 
 Avoid presenting the project as a universal arbitrary-code verifier or a replacement for authentication, authorization, sandboxing, or runtime security.
 
-## Public launch copy
+## Public release maintenance
 
-Use [`public_launch_kit.md`](public_launch_kit.md) for the maintained one-line pitch, 30-second explanation, Show HN-style draft, developer-community draft, short-form copy, FAQ responses, and public claim-boundary rules.
+For a release-affecting change:
 
-## Visibility
+1. keep the repository contents bounded to the intended public surface;
+2. run the normal CI and release-contract checks;
+3. keep the description/topics above synchronized with the live repository;
+4. keep private archives, private corpora, and enterprise-only material out of the public repository;
+5. follow [`PYPI_PUBLISHING.md`](PYPI_PUBLISHING.md) for any Python publication;
+6. preserve the explicit non-production / pre-v1 claim boundary until a deliberate later release changes it.
 
-Recommended launch sequence:
-
-1. Keep the public repository contents bounded to the intended release surface.
-2. Run `python scripts/run_prelaunch_check.py --out-dir /tmp/ainir_prelaunch_results` before major release changes.
-3. Confirm the full private RC archive and private corpora are not included.
-4. Apply the repository description and topics above.
-5. Set `assets/ainir-social-preview.png` as the repository social preview.
-6. Keep the repository public only with the deliberately released public-demo surface.
-
-Do not publish the private RC archive, full corpus, extended hardening suite, or enterprise policy packs unless deliberately releasing them later.
+Use [`public_launch_kit.md`](public_launch_kit.md) for maintained public-facing copy and [`github_launch_checklist.md`](github_launch_checklist.md) for the current repository/release maintenance checklist.

@@ -4,7 +4,7 @@ AiNIR v1.0 RC candidate is intentionally bounded.
 
 ## Not production runtime
 
-AiNIR does not execute real external effects. It emits host-enforcement skeletons for review and demonstration.
+AiNIR does not execute real external effects. It emits host-enforcement skeletons and bounded preflight decisions for review, testing, and host-owned integration.
 
 ## No enterprise registry governance yet
 
@@ -16,9 +16,11 @@ The public Evidence Ledger remains bundled and deterministic. P5 implements offl
 
 A successfully validated provider record is only a `validated_candidate`; `trust_gate_promotion_allowed` remains false.
 
-## No downstream integration
+## No production downstream execution integration
 
-`VerifiedIntentPacket` is an optional export artifact. The public demo does not integrate with downstream compilers, runtimes, renderers, or workflow engines.
+The public repository includes bounded, non-executing host-adapter examples and a five-minute preflight integration guide. Those examples show where AiNIR can sit in front of an already-observed tool/function call.
+
+AiNIR still does not ship a production downstream compiler, renderer, workflow engine, remote tool runtime, or side-effect executor. `VerifiedIntentPacket` remains an optional export artifact, and any real downstream system must perform its own runtime validation and enforcement.
 
 ## Conservative workflow coverage
 
@@ -71,7 +73,6 @@ See `docs/executable_claim_semantics.md`.
 The public `VerifiedIntentPacket` surface does not emit concrete downstream schema groundings. Future consumers must perform their own schema, symbol, renderer, runtime, and execution-level verification.
 
 See `docs/verified_intent_packet_scope.md`.
-
 
 ## Bounded MCP preflight, not an MCP runtime
 

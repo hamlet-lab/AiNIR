@@ -1,14 +1,16 @@
 # AiNIR v1.0 RC Candidate
 
-AiNIR is now packaged as a **v1.0 RC candidate public demo**.
+AiNIR is a **v1.0 RC candidate public demo**. The public repository and Python distribution are now part of the active RC surface; the earlier private-GitHub trial was a pre-publication gate, not the current release state.
 
-This means the public demo scope is ready for private GitHub trial and release-candidate review. It does **not** mean AiNIR is a v1.0 final release or production runtime.
+This does **not** mean AiNIR is a v1.0 final release or a production runtime.
 
 ## RC candidate decision
 
 ```text
 decision: v1_0_rc_candidate
-public_release_ready: pending_private_github_trial
+public_repository: live
+python_distribution: ainir
+public_release_state: published_rc
 production_runtime_ready: false
 v1_final_ready: false
 human_external_review: pending
@@ -35,6 +37,19 @@ human_external_review: pending
 - future workflow domains beyond the public demo set
 - v1.0 final release wording
 
+## Current public path
+
+The first-run path is the published Python distribution and bundled demo:
+
+```bash
+python -m pip install ainir
+ainir demo
+```
+
+The repository also includes a bounded, non-executing [5-minute integration quick start](integration_quickstart.md). A passing AiNIR preflight remains a host-handoff eligibility signal, not permission to skip time-of-use authorization, resource checks, sandboxing, or execution controls.
+
 ## Recommended next step
 
-Upload the public repo to a private GitHub repository first. Confirm README rendering and GitHub Actions. Only then decide whether to make the public demo visible.
+Use the public RC to collect external integration and review evidence while preserving the bounded claim surface. Any later RC or final publication must use a new version; do not reuse the published `1.0.0rc2` identity.
+
+Historical private-trial and prelaunch documents remain in the repository for traceability. They should not be read as instructions to make the currently public repository private again.
