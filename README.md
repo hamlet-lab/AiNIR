@@ -1,6 +1,7 @@
 # AiNIR
 
 ![Status](https://img.shields.io/badge/status-v1.0.0%20RC2-orange)
+![CI](https://github.com/hamlet-lab/ainir/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-Apache--2.0-blue)
 
 > **Model output is a claim, not a fact.**
@@ -80,14 +81,14 @@ AiNIR checks things such as:
 
 ## Quick start
 
-Run from the repository root.
+Run from the repository root. The public demo only needs the package's runtime dependencies; contributor/test tooling is optional.
 
 ### macOS / Linux
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
+pip install -e .
 python -m ainir demo --out-dir "${TMPDIR:-/tmp}/ainir_demo_results"
 ```
 
@@ -96,9 +97,11 @@ python -m ainir demo --out-dir "${TMPDIR:-/tmp}/ainir_demo_results"
 ```powershell
 python -m venv .venv
 . .venv\Scripts\Activate.ps1
-pip install -e ".[dev]"
+pip install -e .
 python -m ainir demo --out-dir "$env:TEMP\ainir_demo_results"
 ```
+
+If you plan to run the full test suite or contributor checks, install the development extras with `pip install -e ".[dev]"`.
 
 Then inspect a single Trust Gate decision:
 
@@ -176,7 +179,7 @@ The same reference profile also demonstrates why semantic classification matters
 
 See [`examples/mcp_tool_call/README.md`](examples/mcp_tool_call/README.md), [`docs/mcp_tool_call_profile.md`](docs/mcp_tool_call_profile.md), and [`docs/mcp_profile_authoring.md`](docs/mcp_profile_authoring.md).
 
-AiNIR also includes a host-owned adapter for completed OpenAI Responses `function_call` artifacts. It consumes already-observed JSON and does not call the OpenAI API, execute the function, or submit tool output. See [`docs/openai_function_tool_host_adapter.md`](docs/openai_function_tool_host_adapter.md).
+AiNIR also includes a host-owned adapter for completed OpenAI Responses `function_call` artifacts. It consumes already-observed JSON and does not call the OpenAI API, execute the function, or submit tool output. See [`examples/openai_function_tool/README.md`](examples/openai_function_tool/README.md) and [`docs/openai_function_tool_host_adapter.md`](docs/openai_function_tool_host_adapter.md).
 
 ## How it works
 
