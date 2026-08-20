@@ -10,7 +10,8 @@ All notable public changes are recorded here. AiNIR remains a bounded release ca
 - rebuilt `docs/README.md` / `docs/index.md` around the current PyPI onboarding, five-minute integration path, RC boundary, and maintained release docs;
 - synchronized GitHub-settings and public-launch documentation with the live repository description/topics while keeping social-preview rendering explicitly separate from the committed asset;
 - clarified that AiNIR now includes bounded non-executing host-integration examples without claiming a production downstream execution runtime;
-- production PyPI publishing now carries the exact source release version into a separate post-upload runner that re-installs that version from the public PyPI index, verifies installed metadata, and runs both module and console demos outside a source checkout.
+- production PyPI publishing now carries the exact source release version into a separate post-upload runner that re-installs that version from the public PyPI index, verifies installed metadata, and runs both module and console demos outside a source checkout;
+- historical phase prose, superseded RC patch notes, and the completed public-launch candidate record are grouped under `docs/archive/` so maintained documentation has a smaller front-stage surface while provenance remains available.
 
 ### Fixed
 
