@@ -101,7 +101,7 @@ def _manifest_check() -> dict[str, Any]:
     errors: list[str] = []
     expected = {
         "status": "rc_candidate_2",
-        "python_distribution_name": "ainir-public-demo",
+        "python_distribution_name": "ainir",
         "python_distribution_version": __version__,
         "release_tag": __release_tag__,
         "npm_metadata_role": "private_typescript_compile_fixture",
