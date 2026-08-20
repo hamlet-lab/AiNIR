@@ -20,6 +20,8 @@ jobs:
   build:
     name: build-and-verify-distributions
     runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ steps.release-version.outputs.version }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
@@ -27,6 +29,12 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: '3.11'
+      - name: Resolve release version
+        id: release-version
+        shell: bash
+        run: |
+          version="$(python -c "from runpy import run_path; print(run_path('src/ainir/_version.py')['__version__'])")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Install build and release-check dependencies
         run: |
           python -m pip install --upgrade pip
@@ -115,3 +123,53 @@ jobs:
           path: dist/
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33
+
+  verify-pypi:
+    name: verify-public-pypi-install
+    if: ${{ inputs.target == 'pypi' && needs.publish-pypi.result == 'success' }}
+    needs: [build, publish-pypi]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      AINIR_RELEASE_VERSION: ${{ needs.build.outputs.release_version }}
+    steps:
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.11'
+      - name: Install exact published version from public PyPI
+        shell: bash
+        run: |
+          python -m venv "$RUNNER_TEMP/ainir-public-pypi-venv"
+          PYTHON="$RUNNER_TEMP/ainir-public-pypi-venv/bin/python"
+          "$PYTHON" -m pip install --upgrade pip
+
+          installed=false
+          for attempt in 1 2 3 4 5 6; do
+            echo "Public PyPI install attempt $attempt for ainir==$AINIR_RELEASE_VERSION"
+            if "$PYTHON" -m pip install \
+              --no-cache-dir \
+              --index-url https://pypi.org/simple \
+              "ainir==$AINIR_RELEASE_VERSION"; then
+              installed=true
+              break
+            fi
+            if [ "$attempt" -lt 6 ]; then
+              sleep 15
+            fi
+          done
+
+          if [ "$installed" != true ]; then
+            echo "::error::Could not install ainir==$AINIR_RELEASE_VERSION from public PyPI after retries."
+            exit 1
+          fi
+      - name: Verify public package identity and demo outside checkout
+        shell: bash
+        run: |
+          PYTHON="$RUNNER_TEMP/ainir-public-pypi-venv/bin/python"
+          AINIR="$RUNNER_TEMP/ainir-public-pypi-venv/bin/ainir"
+          actual_version="$("$PYTHON" -c "from importlib.metadata import version; print(version('ainir'))")"
+          test "$actual_version" = "$AINIR_RELEASE_VERSION"
+
+          cd "$RUNNER_TEMP"
+          "$PYTHON" -m ainir demo --out-dir "$RUNNER_TEMP/ainir-public-pypi-demo-module"
+          "$AINIR" demo --out-dir "$RUNNER_TEMP/ainir-public-pypi-demo-script"
