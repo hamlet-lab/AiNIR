@@ -15,13 +15,13 @@ license-files = ["LICENSE", "NOTICE", "AUTHORS.md"]
 dependencies = ["PyYAML>=6"]
 
 [project.scripts]
-ainir = "ainir.cli:main"
+ainir = "ainir.entrypoint:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-ainir = ["registries/*.yaml", "schemas/*.json", "schemas/*.yaml", "profile_packs/*/*.yaml", "profile_packs/*/examples/*/*.yaml", "mcp_profiles/*/*.yaml", "mcp_profiles/*/descriptors/*.json"]
+ainir = ["registries/*.yaml", "schemas/*.json", "schemas/*.yaml", "profile_packs/*/*.yaml", "profile_packs/*/examples/*/*.yaml", "mcp_profiles/*/*.yaml", "mcp_profiles/*/descriptors/*.json", "demo_examples/*.json", "demo_examples/*/*.yaml"]
 
 [tool.setuptools.dynamic]
 version = {attr = "ainir._version.__version__"}
