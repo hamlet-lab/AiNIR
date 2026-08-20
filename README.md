@@ -81,37 +81,44 @@ AiNIR checks things such as:
 
 ## Quick start
 
-Run from the repository root. The public demo only needs the package's runtime dependencies; contributor/test tooling is optional.
+The bundled public demo travels with the installed package, so you do **not** need to manually clone the repository just to try `ainir demo`.
 
-### macOS / Linux
+### Fastest try — macOS / Linux
+
+Requires Python 3.10+ and Git.
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e .
-python -m ainir demo --out-dir "${TMPDIR:-/tmp}/ainir_demo_results"
+python -m pip install "git+https://github.com/hamlet-lab/ainir.git"
+ainir demo --out-dir "${TMPDIR:-/tmp}/ainir_demo_results"
 ```
 
-### Windows PowerShell
+### Fastest try — Windows PowerShell
+
+Requires Python 3.10+ and Git.
 
 ```powershell
 python -m venv .venv
 . .venv\Scripts\Activate.ps1
-pip install -e .
-python -m ainir demo --out-dir "$env:TEMP\ainir_demo_results"
+python -m pip install "git+https://github.com/hamlet-lab/ainir.git"
+ainir demo --out-dir "$env:TEMP\ainir_demo_results"
 ```
 
-If you plan to run the full test suite or contributor checks, install the development extras with `pip install -e ".[dev]"`.
+The demo runs from the installed package and can be launched outside a source checkout.
 
-Then inspect a single Trust Gate decision:
+If you want to inspect the source examples, run individual Trust Gate decisions, or contribute, clone the repository and install the development extras:
 
 ```bash
+git clone https://github.com/hamlet-lab/ainir.git
+cd ainir
+python -m pip install -e ".[dev]"
 python -m ainir trust evaluate examples/create_user_outbox_safe/draft.yaml --json --out-dir /tmp/ainir_trust_gate
 ```
 
 On Windows PowerShell, replace `/tmp/...` with `$env:TEMP\...`.
 
-Want only the shortest path? Start with [`START_HERE.md`](START_HERE.md).
+Want the guided path? Start with [`START_HERE.md`](START_HERE.md).
 
 ## Public examples
 
