@@ -35,3 +35,24 @@ jobs:
           assert root.joinpath('create_user_outbox_safe').joinpath('draft.yaml').is_file()
           print('packaged demo resources: ok')
           PY
+
+  github-source-install-demo:
+    name: github-source-install-demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: '3.11'
+      - name: Install current revision directly from GitHub
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          REF="$PR_HEAD_SHA"
+          if [ -z "$REF" ]; then REF="$GITHUB_SHA"; fi
+          python -m pip install --upgrade pip
+          python -m pip install "git+https://github.com/${GITHUB_REPOSITORY}.git@${REF}"
+      - name: Run installed demo outside any checkout
+        run: |
+          cd "$RUNNER_TEMP"
+          python -m ainir demo --out-dir "$RUNNER_TEMP/ainir-github-install-demo"
+          ainir demo --out-dir "$RUNNER_TEMP/ainir-github-install-demo-console-script"
