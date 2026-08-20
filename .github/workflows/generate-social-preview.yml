@@ -6,6 +6,7 @@ on:
       - agent/improve-public-onboarding
     paths:
       - scripts/generate_social_preview.py
+      - .github/workflows/generate-social-preview.yml
 
 permissions:
   contents: write
