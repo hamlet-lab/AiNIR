@@ -6,7 +6,7 @@ wheel and `ainir.__version__` must report the same PEP 440 version.
 
 Current candidate identity:
 
-- Python distribution: `ainir-public-demo`
+- Python distribution: `ainir`
 - Python version: `1.0.0rc2`
 - Release tag: `v1.0.0-rc.2`
 - Status: release candidate, not v1.0 final and not a production runtime

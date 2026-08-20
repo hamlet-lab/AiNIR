@@ -1,6 +1,6 @@
 release_candidate: AiNIR v1.0.0 RC2
 status: rc_candidate_2
-python_distribution_name: ainir-public-demo
+python_distribution_name: ainir
 python_distribution_version: 1.0.0rc2
 release_tag: v1.0.0-rc.2
 npm_metadata_role: private_typescript_compile_fixture

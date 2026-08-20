@@ -3,7 +3,7 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ainir-public-demo"
+name = "ainir"
 dynamic = ["version"]
 description = "AiNIR v1.0 RC candidate public demo: inspecting AI-generated program semantics before lowering or execution."
 readme = "README.md"

@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_python_release_identity_has_one_source_and_matches_manifest():
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    assert 'name = "ainir"' in pyproject
     assert 'dynamic = ["version"]' in pyproject
     assert 'version = {attr = "ainir._version.__version__"}' in pyproject
     assert 'version = "0.1.0"' not in pyproject
@@ -36,7 +37,7 @@ def test_python_release_identity_has_one_source_and_matches_manifest():
     )
     assert __version__ == "1.0.0rc2"
     assert ainir.__version__ == __version__
-    assert manifest["python_distribution_name"] == "ainir-public-demo"
+    assert manifest["python_distribution_name"] == "ainir"
     assert manifest["python_distribution_version"] == __version__
     assert manifest["release_tag"] == __release_tag__ == "v1.0.0-rc.2"
     assert manifest["status"] == "rc_candidate_2"
@@ -115,8 +116,8 @@ def test_built_wheel_and_sdist_preserve_public_distribution_contracts(tmp_path: 
     failed = [check for check in report.get("checks", []) if check.get("status") != "passed"]
     assert result.returncode == 0, result.stdout + result.stderr
     assert report.get("overall_status") == "passed", failed
-    assert report.get("wheel") == "ainir_public_demo-1.0.0rc2-py3-none-any.whl"
-    assert report.get("sdist") == "ainir_public_demo-1.0.0rc2.tar.gz"
+    assert report.get("wheel") == "ainir-1.0.0rc2-py3-none-any.whl"
+    assert report.get("sdist") == "ainir-1.0.0rc2.tar.gz"
 
 
 def test_distribution_checker_refuses_to_delete_unmarked_existing_directory(tmp_path: Path):

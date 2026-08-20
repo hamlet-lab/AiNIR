@@ -54,7 +54,7 @@ jobs:
           with ZipFile(wheels[0]) as zf:
               metadata_name = next(name for name in zf.namelist() if name.endswith('.dist-info/METADATA'))
               metadata = BytesParser().parsebytes(zf.read(metadata_name))
-          assert metadata['Name'] == 'ainir-public-demo', metadata['Name']
+          assert metadata['Name'] == 'ainir', metadata['Name']
           assert metadata['Version'] == source_version, (metadata['Version'], source_version)
           print(f"verified {metadata['Name']} {metadata['Version']}")
           PY
@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/ainir-public-demo
+      url: https://test.pypi.org/p/ainir
     permissions:
       id-token: write
       contents: read
@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/ainir-public-demo
+      url: https://pypi.org/p/ainir
     permissions:
       id-token: write
       contents: read
