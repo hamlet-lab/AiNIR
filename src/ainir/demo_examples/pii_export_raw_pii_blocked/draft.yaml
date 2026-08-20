@@ -1,0 +1,26 @@
+module: demo.pii_export_raw_pii_blocked
+workflow: PIIExportRequest
+task: PreparePIIExportWorker
+environment: staging
+executable: false
+input_type: PIIExportJob
+output_type: ExportPackageRef
+claims: []
+operations:
+  - id: op.authorize_export
+    op: auth.check_pii_export_authorization
+    effects: [effect.auth.authorization.check]
+    capabilities: [cap.auth.check]
+  - id: op.read_user_pii
+    op: db.read_user_pii_bundle
+    effects: [effect.privacy.pii.read]
+    capabilities: [cap.pii.read]
+  - id: op.log_raw_pii
+    op: log.write_debug
+    effects: [effect.privacy.pii.raw_log]
+    capabilities: [cap.log.write]
+  - id: op.store_unencrypted_package
+    op: storage.write_export_package
+    effects: [effect.privacy.pii.raw_store]
+    capabilities: [cap.export.storage.write]
+return: state
