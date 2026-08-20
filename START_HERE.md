@@ -4,18 +4,18 @@
 
 AiNIR is a bounded semantic trust layer for checking AI-generated workflow semantics before a host runtime is allowed to lower, hand off, or execute them.
 
-If you only want to understand whether AiNIR is relevant to you, do the first four steps below. The deeper RC, registry, evidence-provider, MCP, and release documents remain available under `docs/`.
+If you only want to understand whether AiNIR is relevant to you, do the first two steps below. You do **not** need to manually clone the repository just to run the bundled public demo. Clone the source only when you want to inspect individual example files, run focused Trust Gate checks against them, or contribute.
 
-## 1. Install
+## 1. Install without cloning
 
-Run from the repository root. The public demo only needs the package's runtime dependencies; contributor/test tooling is optional.
+Requires Python 3.10+ and Git.
 
 ### macOS / Linux
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e .
+python -m pip install "git+https://github.com/hamlet-lab/ainir.git"
 ```
 
 ### Windows PowerShell
@@ -23,23 +23,23 @@ pip install -e .
 ```powershell
 python -m venv .venv
 . .venv\Scripts\Activate.ps1
-pip install -e .
+python -m pip install "git+https://github.com/hamlet-lab/ainir.git"
 ```
 
-If you plan to run the full test suite or contributor checks, install the development extras instead with `pip install -e ".[dev]"`.
+## 2. Run the bundled public demo
 
-## 2. Run the public demo
+The demo fixtures travel with the installed package, so this works outside a source checkout.
 
 ### macOS / Linux
 
 ```bash
-python -m ainir demo --out-dir "${TMPDIR:-/tmp}/ainir_demo_results"
+ainir demo --out-dir "${TMPDIR:-/tmp}/ainir_demo_results"
 ```
 
 ### Windows PowerShell
 
 ```powershell
-python -m ainir demo --out-dir "$env:TEMP\ainir_demo_results"
+ainir demo --out-dir "$env:TEMP\ainir_demo_results"
 ```
 
 You should see unsafe examples refused and the transaction-bound outbox example pass.
@@ -53,7 +53,19 @@ AiNIR public demo: passed
 - pii_export_raw_pii_blocked: blocked (17 critical)
 ```
 
-## 3. Inspect one refusal
+At this point you have seen the core behavior: **refuse unsupported or unsafe semantics, and allow a bounded safe path to move forward.**
+
+## 3. Clone the source if you want to inspect individual decisions
+
+```bash
+git clone https://github.com/hamlet-lab/ainir.git
+cd ainir
+python -m pip install -e .
+```
+
+If you plan to run the full test suite or contributor checks, install the development extras instead with `python -m pip install -e ".[dev]"`.
+
+### Inspect one refusal
 
 The account-deletion example proposes a destructive hard-delete operation:
 
@@ -74,7 +86,7 @@ python -m ainir trust evaluate examples/account_deletion_hard_delete_blocked/dra
 
 AiNIR treats the draft as a semantic claim and refuses it according to the registered public-demo contracts instead of treating the model proposal as executable truth.
 
-## 4. Inspect one pass
+### Inspect one pass
 
 Evaluate the safe transaction-bound outbox example:
 
@@ -84,9 +96,7 @@ python -m ainir trust evaluate examples/create_user_outbox_safe/draft.yaml --jso
 
 A passed decision may become eligible for a `TrustReceipt` and lowering. It still does not mean AiNIR itself executes the workflow.
 
-At this point you have seen the core behavior: **refuse unsupported or unsafe semantics, and allow a bounded safe path to move forward.**
-
-## 5. Pick your path
+## 4. Pick your path
 
 ### I want to understand the architecture
 
@@ -127,7 +137,7 @@ Then read the precise contracts:
 - [`docs/mcp_profile_authoring.md`](docs/mcp_profile_authoring.md)
 - [`docs/openai_function_tool_host_adapter.md`](docs/openai_function_tool_host_adapter.md)
 
-Run the bundled MCP example:
+Run the bundled MCP example from a source checkout:
 
 ```bash
 python -m ainir mcp assess \
@@ -142,7 +152,7 @@ AiNIR does not contact or execute the MCP server.
 
 ### I want to inspect verification depth
 
-Run:
+Run from a source checkout:
 
 ```bash
 python -m ainir conformance negative
